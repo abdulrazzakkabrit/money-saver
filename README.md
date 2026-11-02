@@ -2,12 +2,12 @@
 
 **A private, simple budget app that puts you in control of your money.**
 
-Track what you earn, what you spend, and what you save — in any currency — and see exactly where your money goes each month. No account, no sign-up, no bank links. Your data stays on your device.
+Track what you earn, what you spend, and what you save, in any currency, and see exactly where your money goes each month. Create a free account, and your budget is private: no one else can see it, not even other users of the app.
 
-- **Private by design:** nothing is sent to our servers, because there are none. Your budget lives in your browser on your device.
-- **Works in any currency:** enter money in euros, dinars, dollars, koruna, or pounds and view everything in one currency with a single tap, with amounts converted automatically.
+- **Private by design:** each account has its own budget, protected by database rules so only you can read it.
+- **Works in any currency:** enter money in euros, dinars, dollars, koruna, or pounds, and view everything in one currency with a single tap. Amounts convert automatically.
 - **Installs like an app:** add it to your iPhone or Android home screen and open it like any other app.
-- **Free to try:** open the link and start with the sample budget, or begin with a blank page.
+- **Free:** no subscriptions and no in-app purchases.
 
 ---
 
@@ -16,43 +16,47 @@ Track what you earn, what you spend, and what you save — in any currency — a
 - People who want to know where their money goes, without giving a bank or a budgeting service access to their accounts.
 - Anyone who earns or spends in more than one currency and wants one clear total.
 - Savers who want to watch a goal grow, one deposit at a time.
-- Anyone who prefers a tool that stays on their own device.
 
 ---
 
 ## Features
 
+### Accounts and privacy
+- **Sign up** with your name, your email or phone number, and a password. You confirm with a 6-digit code sent to your email or phone.
+- **Log in** with your email or phone number and password. Log out from the menu.
+- **Your name** appears at the top of the menu, with the pages listed below it.
+- **Delete account** in Settings. Your account is deleted 10 days after you request it, and you can cancel during those 10 days.
+
 ### Monthly budget
-- **Five clear sections:** Income, Bills, Expenses, Savings, and Debts. Each has its own page and its own list of categories.
+- **Five clear sections:** Income, Bills, Expenses, Savings, and Debts. Each has its own page and its own categories.
 - **Add, edit, and delete entries** with a name, category, amount, currency, date, and note.
-- **Built-in and custom categories:** use the ones provided, or add your own in a couple of taps.
-- **Month by month:** every month is saved. Move between months, start a new one, or reset just one month.
+- **Built-in and custom categories:** use the ones provided, or add your own.
+- **Month by month:** every month is kept. Move between months, start a new one, or reset just one month.
 
 ### Dashboard
 - **Your month at a glance:** income, spent, saved, and what remains.
 - **Money distribution chart** showing how your money splits between bills, expenses, savings, and debts.
-- **Biggest amounts** and **spending by category**, so you see the costs that matter most.
+- **Biggest amounts** and **spending by category**.
 - **Saved-months history:** tap any past month to review it.
 
 ### Multi-currency
-- **USD, EUR, TND, and CZK ** supported.
-- **One tap switches the view.** Pick the currency you want to see, and every total converts automatically. Your numbers never turn into zero when you switch.
+- **USD, EUR, TND, CZK, and GBP** are supported.
+- **One tap switches the view.** Every total converts automatically.
 - **Exchange rates update automatically once a day.** You can also type your own rate for any currency, and go back to the automatic rate whenever you like.
 
 ### Savings goals
 - **Set a target** with a name, an amount, an optional target date, and a note.
 - **Add money whenever you can.** Each deposit is recorded with its date.
 - **Progress at a glance:** a percentage, the amount left, and a growth chart for each goal.
-- **A celebration when you reach your goal**, with a short confetti animation. Motion can be turned off by your phone's accessibility settings.
+- **A celebration when you reach your goal**, with a confetti animation. It respects your phone's reduce-motion setting.
 
 ### Receipt scanner
 - **Take a photo of a receipt** and the app suggests the total, the store, and a category.
-- **You always review before saving.** Nothing is logged without your confirmation.
+- **You always review before saving.**
 - **The photo is not stored** after it is read.
 
 ### Excel export
-- **One Excel file with everything:** all your months and all your goals, ready for your accountant or your own analysis. Each entry keeps its original amount and currency.
-- **A copy for your records.** The Excel file is not designed to restore the app.
+- **One Excel file with everything:** all your months and goals. Each entry keeps its original amount and currency.
 
 ### Looks and feel
 - **Light and dark themes**, switchable in Settings.
@@ -63,70 +67,67 @@ Track what you earn, what you spend, and what you save — in any currency — a
 
 ## What's new in version 1.0.1
 
-- **Multiple currencies, one total:** enter money in USD, EUR, TND, or CZK, and switch the view with one tap. Amounts convert automatically, so 10 EUR at 30 TND.
-- **Automatic exchange rates:** rates update once a day. Tap **Edit** in Settings to type your own rate for any currency, or **Use auto** to go back to the daily rate.
-- **Dark mode:** switch between light and dark in **Settings → Appearance**.
-- **Three languages:** English, Arabic (right-to-left), and Czech, chosen in **Settings → Language**.
-- **Animations:** a welcome celebration each time you open the app, and a confetti burst when you reach a savings goal. Both respect your phone's reduce-motion setting.
-- **Phone menu:** a single menu button replaces the bottom bar on smaller screens.
-- **Excel download** of all months and goals in one file.
-- **Version shown in Settings → About** so you always know which version you are using.
+- **Accounts:** sign up, log in and out, and delete your account, with each user's budget kept private.
+- **Multiple currencies, one total,** with one-tap switching and automatic conversion.
+- **Automatic exchange rates,** updated daily, with your own rates available through Edit.
+- **Dark mode** in Settings → Appearance.
+- **Three languages:** English, Arabic, and Czech, chosen in Settings → Language.
+- **Animations:** a welcome celebration when you open the app, and confetti when you reach a savings goal.
+- **Phone menu:** a single menu button on smaller screens.
+- **Excel download** of all months and goals.
+- **Version shown** in Settings → About.
 
 ---
 
 ## Getting started
 
-1. **Open the link:** (https://abdulrazzakkabrit.github.io/money-saver/
-2. **Try the sample budget** to explore, or tap **Start my own budget** to begin with a blank page.
-3. **Add it to your home screen** (optional):
+1. **Open the link:** [your-link-here]
+2. **Create an account:** enter your name, your email or phone number, and a password. Enter the 6-digit code you receive.
+3. **Add your first entries,** or explore the dashboard.
+4. **Add it to your home screen** (optional):
    - **iPhone:** open the link in Safari, tap **Share**, then **Add to Home Screen**.
    - **Android:** open the link in Chrome, tap the menu (⋮), then **Install app** or **Add to Home screen**.
-4. **Download a copy regularly:** go to **Settings → Download Excel (all months)** and keep the file somewhere safe.
+5. **Keep a copy of your data:** go to **Settings → Download Excel (all months)** from time to time.
 
 ### What you need
-- A modern browser: Safari on iPhone, Chrome or Edge on Android or a computer.
-- An internet connection for the **daily exchange-rate update** and for the **receipt scanner**, which loads its text-recognition engine the first time it is used. Everything else works without a connection once the page has loaded.
+- A modern browser: Safari on iPhone, or Chrome or Edge on Android or a computer.
+- **An internet connection.** Your budget is stored in your private account, so the app needs to be online to load and save it.
 
 ---
 
 ## Your privacy
 
-- **No account and no sign-up.** We never ask for your name, email, or bank details.
-- **No bank connections.** You enter what you want to track, and nothing is pulled from your accounts.
-- **Your data stays on your device.** It is saved in your browser's local storage and is not uploaded anywhere.
-- **Clearing your browser's site data erases your budget.** Keep an Excel copy as a record — see below.
+- **Your budget is private.** Only you can read your account's data.
+- **We don't sell your information,** and we don't use your budget for advertising.
+- **No bank connections.** You enter what you want to track.
+- **You control your data.** You can download it as Excel at any time, and delete your account in Settings. Deletion takes effect 10 days after you request it.
+- See the [Privacy Policy](privacy.html) and [Terms of Service](terms.html).
 
 ---
 
 ## Important to know
 
-- **Your data lives on one device and one browser.** It does not sync between your phone and your computer, and the app cannot move it to another device yet.
-- **Download an Excel copy before you clear browser data, change phones, or reinstall.** The Excel file is a record of your budget; it cannot restore the app. Once the data is erased, it cannot be recovered.
-- **Exchange rates are updated from a public rate service** once a day. Rates are estimates, not bank rates, so check them before any important currency decision.
+- **Exchange rates are estimates** from a public rate service. Check them before any important currency decision.
+- **The receipt reader can make mistakes.** Check the suggested total before saving.
+- **This is a budgeting tool, not financial advice.**
 
 ---
 
 ## Built with
 
-- **HTML, CSS, and JavaScript** in a single page — no installation and no server required.
+- **HTML, CSS, and JavaScript** in a single page.
+- **Supabase** for accounts and private storage of each user's budget.
 - **SheetJS** for Excel export.
-- **Tesseract.js** for reading receipts on your device.
-- **ExchangeRate-API** (open.er-api.com) for daily exchange rates, with backup rate sources.
-- **Web app features** that let it be installed to your home screen.
-
----
-
-## Desktop version (Windows)
-
-A Windows desktop version is available, with the same features in a standalone window. It remembers its window size and position between launches.
-
-*(Remove this section if you are only selling the web version.)*
+- **Tesseract.js** for reading receipts.
+- **ExchangeRate-API** (open.er-api.com) for daily exchange rates.
 
 ---
 
 ## Pricing and license
 
 - **Price:** Free
+- **License:** [your license terms]
+- **Support:** [your email or contact]
 
 ---
 
@@ -135,21 +136,21 @@ A Windows desktop version is available, with the same features in a standalone w
 **Is it really free?**
 Yes. Money Saver is free to use, with no subscriptions and no in-app purchases.
 
+**Do I need an account?**
+Yes. A free account keeps your budget private and safe, and lets you use it from any device where you log in.
+
 **Can I use it without internet?**
-Your budget is stored on your device, so you can view and edit it without a connection. The daily exchange-rate update and the receipt scanner do need an internet connection.
+No. Your budget is stored in your account, so the app needs an internet connection to load and save it.
 
-**Can my data be seen by anyone else?**
-Your data is stored only in your browser on your device. We do not receive or store it.
+**Can anyone else see my budget?**
+No. Your budget is stored in your private account, and the database only lets you read your own data.
 
-**What happens if I lose my phone?**
-Your budget is on that phone only, and the app cannot restore it onto a new device yet. Keep regular Excel downloads as a record of your budget.
+**What happens if I want to leave?**
+Download your Excel copy, then delete your account in Settings. Your account is deleted 10 days after you request it. You can cancel during those 10 days by logging back in.
 
 **Which currencies are supported?**
-USD, EUR, TND, CZK, and GBP. Exchange rates are updated daily, and you can set your own.
-
-**Does it connect to my bank?**
-No. You enter your income, bills, and spending yourself.
+USD, EUR, TND, CZK, and GBP. Exchange rates update daily, and you can set your own.
 
 ---
 
-*Money Saver — your money, clearly.*
+*Money Saver: your money, clearly.*
