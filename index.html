@@ -56,6 +56,23 @@
 .square-tile h3{margin:0;font-size:15px}
 .square-tile .theme-toggle{flex-direction:column;gap:8px;margin-top:auto}
 .square-tile .theme-btn{flex:none;padding:10px 8px;font-size:13px}
+.welcome-modal{text-align:center;width:min(100%,400px);animation:welPop .45s cubic-bezier(.2,.9,.3,1.2) both}
+.welcome-modal h2{margin:4px 0 6px;font-size:24px}
+.wel-tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.wel-tile{aspect-ratio:1/1;border:1px solid var(--line,#e0dce6);background:var(--card,#faf9fb);border-radius:18px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;overflow:hidden;font-size:11px;text-align:left;animation:welIn .5s both}
+.wel-tile:nth-child(2){animation-delay:.15s}
+.wel-ico{font-size:22px;line-height:1}
+.wel-tile b{font-size:12.5px}
+.wel-tile ol{margin:0;padding-left:14px;display:grid;gap:4px;font-size:10.5px;line-height:1.3;color:var(--muted,#6b6575)}
+.wel-btn{width:100%;animation:welWow 1s ease-in-out .5s 3 both}
+@keyframes welPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+@keyframes welIn{from{opacity:0;transform:translateY(10px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes welWow{0%,100%{transform:scale(1);box-shadow:0 0 0 0 #4fb08000}50%{transform:scale(1.06);box-shadow:0 0 0 12px #4fb08038}}
+.money-rain{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.money-bill{position:absolute;top:-50px;font-size:26px;animation-name:billFall;animation-timing-function:linear;animation-fill-mode:forwards}
+@keyframes billFall{to{transform:translate(var(--dx),110vh) rotate(var(--rot))}}
+@media (max-width:360px){.wel-tile{aspect-ratio:auto;min-height:118px}}
+@media (prefers-reduced-motion:reduce){.welcome-modal,.wel-tile,.wel-btn{animation:none!important}}
 :root[data-theme="dark"]{--paper:#14171a;--ink:#e7eaed;--card:#1e2329;--line:#2b323a;--muted:#98a2ab}
 [data-theme="dark"] body{background:#14171a;color:#e7eaed}
 [data-theme="dark"] .sidebar{background:#1a1f24;border-color:#2b323a}
@@ -533,7 +550,48 @@ async function resendCode(){if(ACC.mode!=='reset'&&!ACC.pending)return;if(ACC.co
 
 /* Budget storage: one private row per account, protected by database rules */
 function normState(){if(!state.months||typeof state.months!=='object')state.months={};initCustoms();initGoals();initCur();initTheme();state.rates=cleanRates(state.rates);if(!state.months[state.month])state.months[state.month]=[]}
-async function loadAccount(user){ACC.user=user;hideAuth();
+/* New-user welcome: shown once, on the first sign-in of a brand-new account (created within 7 days) */
+function maybeWelcome(){
+ try{
+   const u=ACC.user; if(!u||!u.id)return;
+   const key='money-saver-welcomed:'+u.id;
+   if(localStorage.getItem(key))return;
+   localStorage.setItem(key,'1');
+   const made=Date.parse(u.created_at||'');
+   if(!made||Date.now()-made>7*86400000)return;
+   showNewUserWelcome();
+ }catch(e){}
+}
+function showNewUserWelcome(){
+ if($('welcome-modal'))return;
+ const el=document.createElement('div');
+ el.className='modal-backdrop';el.id='welcome-modal';el.style.background='transparent';
+ el.innerHTML='<div class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title"><p class="eyebrow">WELCOME</p><h2 id="welcome-title">Welcome to Money Saver 🎉</h2><p class="smallprint">Save the app to your device so it opens like a real app.</p><div class="wel-tiles"><div class="wel-tile"><div class="wel-ico">💻</div><b>On PC</b><ol><li>Click ⊕ in the address bar</li><li>Click Install</li></ol></div><div class="wel-tile"><div class="wel-ico">📱</div><b>On phone</b><ol><li>iPhone: Share, then Add to Home Screen</li><li>Android: ⋮, then Add to Home screen</li></ol></div></div><button type="button" class="pill-btn primary wel-btn" id="welcome-ok">Awesome! ✨</button></div>';
+ document.body.appendChild(el);
+ document.body.style.overflow='hidden';
+ $('welcome-ok').onclick=()=>{el.remove();document.body.style.overflow='';moneyRain()};
+}
+/* Money rain when the new-user welcome is closed: bills fall over the normal page, all done within 4 seconds */
+function moneyRain(){
+ try{
+   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+   const box=document.createElement('div');box.className='money-rain';
+   const bills=['💵','💸','💵','💰'];
+   for(let i=0;i<36;i++){
+     const s=document.createElement('span');s.className='money-bill';
+     s.textContent=bills[i%bills.length];
+     s.style.left=(Math.random()*100)+'%';
+     s.style.setProperty('--dx',((Math.random()-0.5)*160)+'px');
+     s.style.setProperty('--rot',((Math.random()*720)-360)+'deg');
+     s.style.animationDuration=(2.2+Math.random()*0.6)+'s';
+     s.style.animationDelay=(Math.random()*0.8)+'s';
+     box.appendChild(s);
+   }
+   document.body.appendChild(box);
+   setTimeout(()=>box.remove(),4000);
+ }catch(e){}
+}
+async function loadAccount(user){ACC.user=user;hideAuth();setTimeout(maybeWelcome,600);
  const {data,error}=await supa().from('budgets').select('data').maybeSingle();
  if(error){toast('Could not load your budget. Check your connection.')}
  else if(data&&data.data&&data.data.months){state=data.data}
