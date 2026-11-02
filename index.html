@@ -552,22 +552,34 @@ async function cancelDelete(){const {error}=await supa().from('deletion_requests
 function accountInfo(){return {who:(ACC.user&&ACC.user.user_metadata&&ACC.user.user_metadata.full_name)||'Your account',contact:(ACC.user&&(ACC.user.email||ACC.user.phone))||''}}
 /* Notifications: a motivation message on this phone when switched on (device setting) */
 const NOTIFY_KEY='money-saver-notify';
+const VAPID_PUBLIC='BKqO2K0xMzrkKA6dlisCz7sjcxhlRMx8RQSwx9cjWwn-kZDLkB7vJKlOm82DMZe27JPlTTvM1BjXJdUvVInSmrg';
 const GOAL_LINE='Small savings, big goals: every deposit brings you closer to your goal today.';
+function b64ToBytes(b64){const pad='='.repeat((4-b64.length%4)%4);const raw=atob((b64+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0))}
+async function subscribePush(){
+ const reg=await Promise.race([navigator.serviceWorker.ready,new Promise((_,j)=>setTimeout(()=>j(new Error('no worker')),3000))]);
+ let sub=await reg.pushManager.getSubscription();
+ if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToBytes(VAPID_PUBLIC)});
+ if(!accountsOn()||!ACC.user)throw new Error('not signed in');
+ const {error}=await supa().from('push_subscriptions').upsert({endpoint:sub.endpoint,user_id:ACC.user.id,subscription:sub.toJSON()});
+ if(error)throw error;}
+async function unsubscribePush(){try{const reg=await navigator.serviceWorker.ready;const sub=await reg.pushManager.getSubscription();
+ if(sub){if(accountsOn()&&ACC.user)await supa().from('push_subscriptions').delete().eq('endpoint',sub.endpoint);await sub.unsubscribe()}}catch(e){}}
 function notifyOn(){try{return localStorage.getItem(NOTIFY_KEY)==='on'&&('Notification' in window)&&Notification.permission==='granted'}catch(e){return false}}
 function notifyPanel(){const on=notifyOn();return `<article class="panel"><h3>🔔 Notifications</h3><p class="smallprint">Get a short motivation on this phone. On iPhone, open the app from your Home Screen first.</p><div class="theme-toggle"><button type="button" class="theme-btn ${on?'active':''}" data-notify-set="on">🔔 On</button><button type="button" class="theme-btn ${on?'':'active'}" data-notify-set="off">🔕 Off</button></div></article>`}
 async function setNotify(turnOn){
- if(!turnOn){try{localStorage.setItem(NOTIFY_KEY,'off')}catch(e){}render();toast('Notifications off');return}
+ if(!turnOn){try{localStorage.setItem(NOTIFY_KEY,'off')}catch(e){}await unsubscribePush();render();toast('Notifications off');return}
  if(!('Notification' in window)){toast('Notifications are not supported here. On iPhone, add the app to your Home Screen first.');render();return}
  let perm=Notification.permission;
  if(perm==='default'){try{perm=await Notification.requestPermission()}catch(e){perm='denied'}}
  if(perm!=='granted'){toast('Notifications are blocked. Allow them in your phone settings for Money Saver.');render();return}
  try{localStorage.setItem(NOTIFY_KEY,'on')}catch(e){}
  render();
+ let pushOk=true;try{await subscribePush()}catch(e){pushOk=false}
  try{
    const reg=await Promise.race([navigator.serviceWorker.ready,new Promise((_,j)=>setTimeout(()=>j(new Error('no worker')),2000))]);
    await reg.showNotification('Money Saver',{body:GOAL_LINE,icon:'icon-192.png',badge:'icon-192.png',tag:'money-saver-motivation'});
  }catch(e){try{new Notification('Money Saver',{body:GOAL_LINE})}catch(e2){}}
- toast('Notifications on ✓');
+ toast(pushOk?'Notifications on ✓':'Notifications on, but reminders could not be saved. Log in and try again.');
 }
 document.addEventListener('click',ev=>{const n=ev.target.closest('[data-notify-set]');if(n)setNotify(n.dataset.notifySet==='on')});
 function accountPanel(){if(!accountsOn()||!ACC.user)return '';const a=accountInfo();

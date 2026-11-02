@@ -29,3 +29,16 @@ self.addEventListener('fetch', event => {
       .catch(() => caches.match(event.request))
   );
 });
+
+// Server reminders: show the motivation even when the app is closed.
+self.addEventListener('push', event => {
+  let data = { title: 'Money Saver', body: 'Small savings, big goals.' };
+  try { data = event.data.json(); } catch (e) {}
+  event.waitUntil(self.registration.showNotification(data.title || 'Money Saver', {
+    body: data.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'money-saver-motivation'
+  }));
+});
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(self.clients.openWindow('./'));
+});
