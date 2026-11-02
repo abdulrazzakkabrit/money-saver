@@ -467,7 +467,7 @@ function normPhone(v){let d=String(v||'').replace(/[\s()\-.]/g,'');return /^\+\d
 function idOf(v){return isEmail(v)?{kind:'email',email:v}:null}
 function showAuth(mode){if(mode)ACC.mode=mode;$('auth-screen').hidden=false;renderAuth()}
 function hideAuth(){$('auth-screen').hidden=true}
-function renderAuth(){const signup=ACC.mode==='signup',verify=ACC.mode==='verify';
+function renderAuth(){const signup=ACC.mode==='signup',verify=ACC.mode==='verify';if(verify&&!ACC.timerOn){ACC.timerOn=true;startResendTimer()}if(!verify)ACC.timerOn=false;
  $('auth-title').textContent=verify?'Enter your code':signup?'Create account':'Log in';
  $('auth-sub').textContent=verify?`We sent a 6-digit code to ${ACC.pending?ACC.pending.label:'you'}.`:signup?'Enter your name, your email, and a password.':'Log in with your email and password.';
  $('auth-name-field').hidden=!signup;$('auth-id-field').hidden=verify;$('auth-pass-field').hidden=verify;$('auth-code-field').hidden=!verify;
@@ -492,7 +492,8 @@ async function signUp(){const name=($('auth-name').value||'').trim();if(!name)th
 async function verifyCode(){const code=($('auth-code').value||'').trim();if(!/^\d{6}$/.test(code))throw Error('Enter the 6-digit code.');if(!ACC.pending)throw Error('Please create your account again.');
  const p=ACC.pending.kind==='email'?{email:ACC.pending.email,token:code,type:'signup'}:{phone:ACC.pending.phone,token:code,type:'sms'};
  const {error}=await supa().auth.verifyOtp(p);if(error)throw Error(authErr(error,true));}
-async function resendCode(){if(!ACC.pending)return;const r=ACC.pending.kind==='email'?await supa().auth.resend({type:'signup',email:ACC.pending.email}):await supa().auth.resend({type:'sms',phone:ACC.pending.phone});$('auth-error').textContent=r.error?authErr(r.error):'A new code has been sent.';}
+function startResendTimer(){const b=$('auth-resend');if(!b)return;ACC.coolEnd=Date.now()+10000;const tick=()=>{const left=Math.ceil((ACC.coolEnd-Date.now())/1000);if(left>0){b.disabled=true;b.textContent='Send a new code ('+left+'s)';setTimeout(tick,250)}else{b.disabled=false;b.textContent='Send a new code'}};tick()}
+async function resendCode(){if(!ACC.pending)return;if(ACC.coolEnd&&Date.now()<ACC.coolEnd)return;startResendTimer();const r=ACC.pending.kind==='email'?await supa().auth.resend({type:'signup',email:ACC.pending.email}):await supa().auth.resend({type:'sms',phone:ACC.pending.phone});$('auth-error').textContent=r.error?authErr(r.error):'A new code has been sent.';}
 
 /* Budget storage: one private row per account, protected by database rules */
 function normState(){if(!state.months||typeof state.months!=='object')state.months={};initCustoms();initGoals();initCur();initTheme();state.rates=cleanRates(state.rates);if(!state.months[state.month])state.months[state.month]=[]}
