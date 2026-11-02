@@ -73,6 +73,10 @@
 @keyframes billFall{to{transform:translate(var(--dx),110vh) rotate(var(--rot))}}
 @media (max-width:360px){.wel-tile{aspect-ratio:auto;min-height:118px}}
 @media (prefers-reduced-motion:reduce){.welcome-modal,.wel-tile,.wel-btn{animation:none!important}}
+.pw-wrap{position:relative}
+.pw-wrap input{width:100%;padding-right:46px}
+.pw-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;font-size:18px;line-height:1;padding:8px;cursor:pointer;opacity:.75}
+.pw-eye:hover{opacity:1}
 :root[data-theme="dark"]{--paper:#14171a;--ink:#e7eaed;--card:#1e2329;--line:#2b323a;--muted:#98a2ab}
 [data-theme="dark"] body{background:#14171a;color:#e7eaed}
 [data-theme="dark"] .sidebar{background:#1a1f24;border-color:#2b323a}
@@ -198,7 +202,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <p id="auth-sub" class="help"></p>
 <label id="auth-name-field">Your name<input id="auth-name" autocomplete="name" maxlength="60"></label>
 <label id="auth-id-field">Email<input id="auth-id" autocomplete="username" inputmode="email" placeholder="you@example.com" maxlength="120"></label>
-<label id="auth-pass-field"><span id="auth-pass-label">Password</span><input id="auth-pass" type="password" autocomplete="current-password" maxlength="128" placeholder="At least 8 characters"></label>
+<label id="auth-pass-field"><span id="auth-pass-label">Password</span><div class="pw-wrap"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="128" placeholder="Minimum 6 characters"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password">👁</button></div></label>
 <label id="auth-code-field">6-digit code<input id="auth-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
 <p id="auth-error" class="auth-error" role="alert"></p>
 <button class="pill-btn primary auth-submit" id="auth-submit" type="submit">Log in</button>
@@ -528,7 +532,7 @@ async function logIn(){const id=idOf(($('auth-id').value||'').trim());if(!id)thr
  const {error}=await supa().auth.signInWithPassword(creds);if(error)throw Error(authErr(error));}
 async function signUp(){const name=($('auth-name').value||'').trim();if(!name)throw Error('Enter your name.');
  const id=idOf(($('auth-id').value||'').trim());if(!id)throw Error('Enter a valid email address, such as name@example.com');
- const pw=$('auth-pass').value;if(pw.length<8)throw Error('Use at least 8 characters for your password.');
+ const pw=$('auth-pass').value;if(pw.length<6)throw Error('Use at least 6 characters for your password.');
  const opts={data:{full_name:name}};
  const res=id.kind==='email'?await supa().auth.signUp({email:id.email,password:pw,options:opts}):await supa().auth.signUp({phone:id.phone,password:pw,options:opts});
  if(res.error)throw Error(authErr(res.error));
@@ -541,7 +545,7 @@ async function sendResetCode(){const id=idOf(($('auth-id').value||'').trim());if
  const {error}=await supa().auth.resetPasswordForEmail(id.email);if(error)throw Error(authErr(error));
  ACC.resetEmail=id.email;$('auth-code').value='';$('auth-pass').value='';ACC.mode='reset';renderAuth();}
 async function resetWithCode(){const code=($('auth-code').value||'').trim();if(!/^\d{6}$/.test(code))throw Error('Enter the 6-digit code.');
- const pw=$('auth-pass').value;if(pw.length<8)throw Error('Use at least 8 characters for your new password.');
+ const pw=$('auth-pass').value;if(pw.length<6)throw Error('Use at least 6 characters for your new password.');
  const {error}=await supa().auth.verifyOtp({email:ACC.resetEmail,token:code,type:'recovery'});if(error)throw Error(authErr(error,true));
  const {error:e2}=await supa().auth.updateUser({password:pw});if(e2)throw Error(authErr(e2));
  toast('Password updated ✓');}
@@ -698,9 +702,10 @@ async function setNotify(turnOn){
 document.addEventListener('click',ev=>{const n=ev.target.closest('[data-notify-set]');if(n)setNotify(n.dataset.notifySet==='on')});
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-feedback-send]'))sendFeedback()});
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-feedback-photo]'))$('fb-file')?.click()});
+document.addEventListener('click',ev=>{const e=ev.target.closest('[data-pw-eye]');if(!e)return;const inp=e.parentElement.querySelector('input');if(!inp)return;const show=inp.type==='password';inp.type=show?'text':'password';e.textContent=show?'🙈':'👁';e.setAttribute('aria-label',show?'Hide password':'Show password')});
 document.addEventListener('change',ev=>{if(ev.target.id==='fb-file')attachFeedbackPhoto(ev.target.files&&ev.target.files[0])});
 function accountPanel(){if(!accountsOn()||!ACC.user)return '';const a=accountInfo();
- const pwBlock=`<details class="legal"><summary>🔑 Change password</summary><form id="pw-form" class="pw-form" novalidate><input type="password" id="pw-old" placeholder="Current password" autocomplete="current-password" maxlength="128"><input type="password" id="pw-new" placeholder="New password (at least 8 characters)" autocomplete="new-password" maxlength="128"><button class="pill-btn primary" type="submit">Change password</button><p id="pw-msg" class="smallprint"></p></form></details>`;
+ const pwBlock=`<details class="legal"><summary>🔑 Change password</summary><form id="pw-form" class="pw-form" novalidate><div class="pw-wrap"><input type="password" id="pw-old" placeholder="Current password" autocomplete="current-password" maxlength="128"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password">👁</button></div><div class="pw-wrap"><input type="password" id="pw-new" placeholder="New password (minimum 6 characters)" autocomplete="new-password" maxlength="128"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password">👁</button></div><button class="pill-btn primary" type="submit">Change password</button><p id="pw-msg" class="smallprint"></p></form></details>`;
  const del=ACC.deletion?`<p class="smallprint">Your account is scheduled for deletion on <b>${fmtDate(ACC.deletion.scheduled_for)}</b>. You can cancel until then.</p><div class="action-list"><button class="pill-btn primary" data-acc="cancel-delete">Cancel deletion</button></div>`:`<p class="smallprint">Deleting your account permanently removes your budget. It is deleted 10 days after you request it, and you can cancel during that time.</p><div class="action-list"><button class="pill-btn" data-acc="delete">🗑 Delete account</button></div>`;
  return `<article class="panel"><h3>👤 Account</h3><p class="smallprint"><b>${escape(a.who)}</b> · ${escape(a.contact)}</p><div class="action-list"><button class="pill-btn" data-acc="logout">Log out</button></div>${del}${pwBlock}</article>`}
 function renderMenuAccount(){const html=(!accountsOn()||!ACC.user)?'':(()=>{const a=accountInfo();return `<div class="menu-account-row"><div><b>${escape(a.who)}</b><small>${escape(a.contact)}</small></div><button type="button" class="tiny-btn" data-acc="logout">Log out</button></div>`})();
@@ -723,7 +728,7 @@ async function changePassword(){const msg=$('pw-msg');const set=t=>{msg.textCont
 async function changePasswordInner(set){
  const old=($('pw-old').value||''),nw=($('pw-new').value||'');
  if(!old)return set('Enter your current password.');
- if(nw.length<8)return set('Use at least 8 characters for the new password.');
+ if(nw.length<6)return set('Use at least 6 characters for the new password.');
  if(nw===old)return set('Choose a different password from the current one.');
  if(!ACC.user||!ACC.user.email)return set('Password change works for email accounts.');
  set('Checking…');
