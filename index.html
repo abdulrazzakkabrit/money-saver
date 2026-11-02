@@ -83,7 +83,6 @@
 [data-theme="dark"] .receipt-preview-wrap{background:#1a1f24;border-color:#2b323a}[data-theme="dark"] .ocr-details pre{background:#1a1f24}
 @media(max-width:900px){.bottom-nav{display:none!important}.menu-fab{display:flex}.main{padding-bottom:116px}.top-actions>.pill-btn{display:none}.fab{bottom:calc(26px + env(safe-area-inset-bottom))}.scan-fab{bottom:calc(92px + env(safe-area-inset-bottom))}}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.page-in{animation:pageIn .28s ease-out}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}@media(prefers-reduced-motion:reduce){.page-in{animation:none}}
-.auth-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 4px;padding:12px;border:1px solid #d6dfd9;border-radius:999px;background:#fff;color:#1d2a22;font-size:15px;font-weight:650}.auth-google:hover{background:#f7faf7}.auth-g{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #e3e8e5;color:#4285f4;font-weight:800;font-size:13px}.auth-or{display:flex;align-items:center;gap:10px;color:#8a958e;font-size:13px;margin:10px 0}.auth-or:before,.auth-or:after{content:"";flex:1;height:1px;background:#e3e8e5}[data-theme="dark"] .auth-google{background:#1e2329;color:#e7eaed;border-color:#2b323a}[data-theme="dark"] .auth-g{background:#262c33;border-color:#2b323a}
 </style>
 <style>
 .mobile-brand{display:none}
@@ -173,8 +172,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="auth-brand">MONEY SAVER</div>
 <h2 id="auth-title">Log in</h2>
 <p id="auth-sub" class="help"></p>
-<button class="auth-google" id="auth-google" type="button"><span class="auth-g">G</span> Continue with Google</button>
-<div class="auth-or" id="auth-or"><span>or</span></div>
 <label id="auth-name-field">Your name<input id="auth-name" autocomplete="name" maxlength="60"></label>
 <label id="auth-id-field">Email<input id="auth-id" autocomplete="username" inputmode="email" placeholder="you@example.com" maxlength="120"></label>
 <label id="auth-pass-field">Password<input id="auth-pass" type="password" autocomplete="current-password" maxlength="128" placeholder="At least 8 characters"></label>
@@ -473,7 +470,7 @@ function hideAuth(){$('auth-screen').hidden=true}
 function renderAuth(){const signup=ACC.mode==='signup',verify=ACC.mode==='verify';
  $('auth-title').textContent=verify?'Enter your code':signup?'Create account':'Log in';
  $('auth-sub').textContent=verify?`We sent a 6-digit code to ${ACC.pending?ACC.pending.label:'you'}.`:signup?'Enter your name, your email, and a password.':'Log in with your email and password.';
- $('auth-name-field').hidden=!signup;$('auth-google').hidden=verify;$('auth-or').hidden=verify;$('auth-id-field').hidden=verify;$('auth-pass-field').hidden=verify;$('auth-code-field').hidden=!verify;
+ $('auth-name-field').hidden=!signup;$('auth-id-field').hidden=verify;$('auth-pass-field').hidden=verify;$('auth-code-field').hidden=!verify;
  $('auth-submit').textContent=verify?'Verify':signup?'Create account':'Log in';
  $('auth-switch').hidden=verify;$('auth-switch').textContent=signup?'I already have an account':'Create an account';
  $('auth-resend').hidden=!verify;$('auth-back').hidden=!verify;$('auth-error').textContent='';}
@@ -538,9 +535,7 @@ async function startAccounts(){if(!accountsOn())return;
  const {data}=await supa().auth.getSession();
  if(data&&data.session){if(!ACC.user)loadAccount(data.session.user)}
  else if(!ACC.user)showAuth('login');}
-$('auth-form').addEventListener('submit',onAuthSubmit);
-$('auth-google').addEventListener('click',async()=>{$('auth-error').textContent='';try{const {error}=await supa().auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});if(error)throw error}catch(e){$('auth-error').textContent=e.message||'Could not start Google sign-in.'}});
-$('auth-switch').addEventListener('click',()=>{ACC.mode=ACC.mode==='signup'?'login':'signup';renderAuth()});
+$('auth-form').addEventListener('submit',onAuthSubmit);$('auth-switch').addEventListener('click',()=>{ACC.mode=ACC.mode==='signup'?'login':'signup';renderAuth()});
 $('auth-back').addEventListener('click',()=>{ACC.mode='signup';renderAuth()});
 $('auth-resend').addEventListener('click',resendCode);
 document.addEventListener('click',ev=>{const a=ev.target.closest('[data-acc]');if(!a)return;const k=a.dataset.acc;if(k==='logout')logOut();else if(k==='delete')requestDelete();else if(k==='cancel-delete')cancelDelete()});
