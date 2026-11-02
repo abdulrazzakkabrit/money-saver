@@ -203,7 +203,7 @@ function initGoals(){if(!Array.isArray(state.goals))state.goals=[];state.goals.f
 function goalSaved(g){return (g.contributions||[]).reduce((s,c)=>s+num(c.amount),0)}
 function mostUsedCurrency(){let counts={};for(let e of entries()){let c=CUR_CODES.includes(e.currency)?e.currency:defCur();counts[c]=(counts[c]||0)+1}let b=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];return b?b[0]:null}
 function initTheme(){if(state.theme!=='dark')state.theme='light'}
-function applyTheme(){let dark=state.theme==='dark';document.documentElement.setAttribute('data-theme',dark?'dark':'light');try{let m=document.querySelector('meta[name=theme-color]');if(m)m.content=dark?'#14171a':'#f7faf7'}catch(e){}}
+function applyTheme(){let dark=state.theme==='dark';try{localStorage.setItem('money-saver-theme',dark?'dark':'light')}catch(e){}document.documentElement.setAttribute('data-theme',dark?'dark':'light');try{let m=document.querySelector('meta[name=theme-color]');if(m)m.content=dark?'#14171a':'#f7faf7'}catch(e){}}
 function initCur(){if(!CUR_CODES.includes(state.currency))state.currency='USD';for(let m in state.months){for(let e of state.months[m]){if(e.amount==null)e.amount=num(e.actual)||num(e.planned)||0;if(!CUR_CODES.includes(e.currency))e.currency=state.currency}}for(let g of (state.goals||[])){if(!CUR_CODES.includes(g.currency))g.currency=state.currency}if(!CUR_CODES.includes(state.displayCurrency))state.displayCurrency=mostUsedCurrency()||state.currency}
 function addCustom(type,raw){let v=safeString(raw.trim(),45);if(!v)return null;initCustoms();let found=categories(type).find(x=>x.toLowerCase()===v.toLowerCase());if(found)return found;(state.customCategories[type]??=[]).push(v);return v}
 const STORAGE='money-saver-v2',LEGACY_STORAGE='mizania-v1';const $=id=>document.getElementById(id);let active='dashboard';let demoFlag=false;let installPrompt=null;
@@ -503,11 +503,11 @@ async function loadAccount(user){ACC.user=user;hideAuth();
    let local=null;try{local=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(e){}
    state=(local&&local.months&&!local.demo)?local:emptyState();normState();
    if(await saveCloudNow()){try{localStorage.removeItem(STORAGE)}catch(e){}}}
- normState();await loadDeletion();render();}
+ normState();applyTheme();await loadDeletion();render();}
 function scheduleCloudSave(){clearTimeout(ACC.timer);ACC.timer=setTimeout(saveCloudNow,700)}
 async function saveCloudNow(){if(!ACC.user)return false;const {error}=await supa().from('budgets').upsert({user_id:ACC.user.id,data:state,updated_at:new Date().toISOString()});if(error){toast('Could not save. Check your connection.');return false}return true}
 async function logOut(){clearTimeout(ACC.timer);try{await supa().auth.signOut()}catch(e){}clearAccountView();closeMenu();showAuth('login')}
-function clearAccountView(){ACC.user=null;ACC.deletion=null;ACC.pending=null;state=emptyState();normState();render()}
+function clearAccountView(){ACC.user=null;ACC.deletion=null;ACC.pending=null;let th=state.theme;state=emptyState();state.theme=th;normState();applyTheme();render()}
 
 /* Account deletion: scheduled 10 days ahead, cancellable */
 async function loadDeletion(){const {data}=await supa().from('deletion_requests').select('scheduled_for').maybeSingle();ACC.deletion=data||null}
@@ -541,6 +541,7 @@ $('auth-resend').addEventListener('click',resendCode);
 document.addEventListener('click',ev=>{const a=ev.target.closest('[data-acc]');if(!a)return;const k=a.dataset.acc;if(k==='logout')logOut();else if(k==='delete')requestDelete();else if(k==='cancel-delete')cancelDelete()});
 document.addEventListener('click',ev=>{let lg=ev.target.closest('[data-lang]');if(lg){setLang(lg.dataset.lang);return}setTimeout(translateDOM,0)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRates(false)});
+try{let t=localStorage.getItem('money-saver-theme');if(t==='dark'||t==='light')state.theme=t}catch(e){}
 uiLang=loadLang();applyLang();applyTheme();if(!accountsOn())hideAuth();render();setTimeout(celebrate,350);refreshRates(false);startAccounts();
 })();
 </script>
