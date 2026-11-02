@@ -83,6 +83,7 @@
 [data-theme="dark"] .receipt-preview-wrap{background:#1a1f24;border-color:#2b323a}[data-theme="dark"] .ocr-details pre{background:#1a1f24}
 @media(max-width:900px){.bottom-nav{display:none!important}.menu-fab{display:flex}.main{padding-bottom:116px}.top-actions>.pill-btn{display:none}.fab{bottom:calc(26px + env(safe-area-inset-bottom))}.scan-fab{bottom:calc(92px + env(safe-area-inset-bottom))}}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.page-in{animation:pageIn .28s ease-out}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s}@media(prefers-reduced-motion:reduce){.page-in{animation:none}}
+.pw-form{display:grid;gap:8px;margin-top:10px}.pw-form input{width:100%;padding:11px 12px;border:1px solid #d6dfd9;border-radius:12px;font-size:15px;background:#fff;color:#1d2a22}.pw-form .pill-btn{justify-self:start}[data-theme="dark"] .pw-form input{background:#14171a;color:#e7eaed;border-color:#2b323a}
 </style>
 <style>
 .mobile-brand{display:none}
@@ -174,11 +175,12 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <p id="auth-sub" class="help"></p>
 <label id="auth-name-field">Your name<input id="auth-name" autocomplete="name" maxlength="60"></label>
 <label id="auth-id-field">Email<input id="auth-id" autocomplete="username" inputmode="email" placeholder="you@example.com" maxlength="120"></label>
-<label id="auth-pass-field">Password<input id="auth-pass" type="password" autocomplete="current-password" maxlength="128" placeholder="At least 8 characters"></label>
+<label id="auth-pass-field"><span id="auth-pass-label">Password</span><input id="auth-pass" type="password" autocomplete="current-password" maxlength="128" placeholder="At least 8 characters"></label>
 <label id="auth-code-field">6-digit code<input id="auth-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
 <p id="auth-error" class="auth-error" role="alert"></p>
 <button class="pill-btn primary auth-submit" id="auth-submit" type="submit">Log in</button>
 <button class="tiny-btn" id="auth-switch" type="button">Create an account</button>
+<button class="tiny-btn" id="auth-forgot" type="button">Forgot password?</button>
 <button class="tiny-btn" id="auth-resend" type="button" hidden>Send a new code</button>
 <button class="tiny-btn" id="auth-back" type="button" hidden>Back</button>
 </form></div>
@@ -467,15 +469,19 @@ function normPhone(v){let d=String(v||'').replace(/[\s()\-.]/g,'');return /^\+\d
 function idOf(v){return isEmail(v)?{kind:'email',email:v}:null}
 function showAuth(mode){if(mode)ACC.mode=mode;$('auth-screen').hidden=false;renderAuth()}
 function hideAuth(){$('auth-screen').hidden=true}
-function renderAuth(){const signup=ACC.mode==='signup',verify=ACC.mode==='verify';if(verify&&!ACC.timerOn){ACC.timerOn=true;startResendTimer()}if(!verify)ACC.timerOn=false;
- $('auth-title').textContent=verify?'Enter your code':signup?'Create account':'Log in';
- $('auth-sub').textContent=verify?`We sent a 6-digit code to ${ACC.pending?ACC.pending.label:'you'}.`:signup?'Enter your name, your email, and a password.':'Log in with your email and password.';
- $('auth-name-field').hidden=!signup;$('auth-id-field').hidden=verify;$('auth-pass-field').hidden=verify;$('auth-code-field').hidden=!verify;
- $('auth-submit').textContent=verify?'Verify':signup?'Create account':'Log in';
- $('auth-switch').hidden=verify;$('auth-switch').textContent=signup?'I already have an account':'Create an account';
- $('auth-resend').hidden=!verify;$('auth-back').hidden=!verify;$('auth-error').textContent='';}
+function renderAuth(){const signup=ACC.mode==='signup',verify=ACC.mode==='verify',forgot=ACC.mode==='forgot',reset=ACC.mode==='reset',codeScreen=verify||reset;
+ if(codeScreen&&!ACC.timerOn){ACC.timerOn=true;startResendTimer()}if(!codeScreen)ACC.timerOn=false;
+ $('auth-title').textContent=verify?'Enter your code':reset?'Choose a new password':forgot?'Reset password':signup?'Create account':'Log in';
+ $('auth-sub').textContent=verify?`We sent a 6-digit code to ${ACC.pending?ACC.pending.label:'you'}.`:reset?`We sent a 6-digit code to ${ACC.resetEmail||'your email'}. Enter it with your new password.`:forgot?'Enter your email and we will send you a code.':signup?'Enter your name, your email, and a password.':'Log in with your email and password.';
+ $('auth-name-field').hidden=!signup;$('auth-id-field').hidden=codeScreen;$('auth-pass-field').hidden=verify||forgot;$('auth-code-field').hidden=!codeScreen;
+ $('auth-pass-label').textContent=reset?'New password':'Password';
+ $('auth-submit').textContent=verify?'Verify':reset?'Set new password':forgot?'Send code':signup?'Create account':'Log in';
+ $('auth-switch').hidden=codeScreen||forgot;$('auth-switch').textContent=signup?'I already have an account':'Create an account';
+ $('auth-forgot').hidden=ACC.mode!=='login';
+ $('auth-resend').hidden=!codeScreen;$('auth-back').hidden=!(codeScreen||forgot);
+ $('auth-error').textContent='';}
 async function onAuthSubmit(ev){ev.preventDefault();const btn=$('auth-submit');btn.disabled=true;$('auth-error').textContent='';
- try{if(ACC.mode==='verify')await verifyCode();else if(ACC.mode==='signup')await signUp();else await logIn()}
+ try{if(ACC.mode==='verify')await verifyCode();else if(ACC.mode==='signup')await signUp();else if(ACC.mode==='forgot')await sendResetCode();else if(ACC.mode==='reset')await resetWithCode();else await logIn()}
  catch(e){$('auth-error').textContent=e.message||'Something went wrong.'}
  finally{btn.disabled=false}}
 async function logIn(){const id=idOf(($('auth-id').value||'').trim());if(!id)throw Error('Enter a valid email address, such as name@example.com');const pw=$('auth-pass').value;if(!pw)throw Error('Enter your password.');
@@ -492,8 +498,16 @@ async function signUp(){const name=($('auth-name').value||'').trim();if(!name)th
 async function verifyCode(){const code=($('auth-code').value||'').trim();if(!/^\d{6}$/.test(code))throw Error('Enter the 6-digit code.');if(!ACC.pending)throw Error('Please create your account again.');
  const p=ACC.pending.kind==='email'?{email:ACC.pending.email,token:code,type:'signup'}:{phone:ACC.pending.phone,token:code,type:'sms'};
  const {error}=await supa().auth.verifyOtp(p);if(error)throw Error(authErr(error,true));}
+async function sendResetCode(){const id=idOf(($('auth-id').value||'').trim());if(!id)throw Error('Enter a valid email address, such as name@example.com');
+ const {error}=await supa().auth.resetPasswordForEmail(id.email);if(error)throw Error(authErr(error));
+ ACC.resetEmail=id.email;$('auth-code').value='';$('auth-pass').value='';ACC.mode='reset';renderAuth();}
+async function resetWithCode(){const code=($('auth-code').value||'').trim();if(!/^\d{6}$/.test(code))throw Error('Enter the 6-digit code.');
+ const pw=$('auth-pass').value;if(pw.length<8)throw Error('Use at least 8 characters for your new password.');
+ const {error}=await supa().auth.verifyOtp({email:ACC.resetEmail,token:code,type:'recovery'});if(error)throw Error(authErr(error,true));
+ const {error:e2}=await supa().auth.updateUser({password:pw});if(e2)throw Error(authErr(e2));
+ toast('Password updated ✓');}
 function startResendTimer(){const b=$('auth-resend');if(!b)return;ACC.coolEnd=Date.now()+10000;const tick=()=>{const left=Math.ceil((ACC.coolEnd-Date.now())/1000);if(left>0){b.disabled=true;b.textContent='Send a new code ('+left+'s)';setTimeout(tick,250)}else{b.disabled=false;b.textContent='Send a new code'}};tick()}
-async function resendCode(){if(!ACC.pending)return;if(ACC.coolEnd&&Date.now()<ACC.coolEnd)return;startResendTimer();const r=ACC.pending.kind==='email'?await supa().auth.resend({type:'signup',email:ACC.pending.email}):await supa().auth.resend({type:'sms',phone:ACC.pending.phone});$('auth-error').textContent=r.error?authErr(r.error):'A new code has been sent.';}
+async function resendCode(){if(ACC.mode!=='reset'&&!ACC.pending)return;if(ACC.coolEnd&&Date.now()<ACC.coolEnd)return;startResendTimer();const r=ACC.mode==='reset'?await supa().auth.resetPasswordForEmail(ACC.resetEmail):ACC.pending.kind==='email'?await supa().auth.resend({type:'signup',email:ACC.pending.email}):await supa().auth.resend({type:'sms',phone:ACC.pending.phone});$('auth-error').textContent=r.error?authErr(r.error):'A new code has been sent.';}
 
 /* Budget storage: one private row per account, protected by database rules */
 function normState(){if(!state.months||typeof state.months!=='object')state.months={};initCustoms();initGoals();initCur();initTheme();state.rates=cleanRates(state.rates);if(!state.months[state.month])state.months[state.month]=[]}
@@ -522,8 +536,9 @@ async function cancelDelete(){const {error}=await supa().from('deletion_requests
 /* Panels */
 function accountInfo(){return {who:(ACC.user&&ACC.user.user_metadata&&ACC.user.user_metadata.full_name)||'Your account',contact:(ACC.user&&(ACC.user.email||ACC.user.phone))||''}}
 function accountPanel(){if(!accountsOn()||!ACC.user)return '';const a=accountInfo();
+ const pwBlock=`<details class="legal"><summary>🔑 Change password</summary><form id="pw-form" class="pw-form" novalidate><input type="password" id="pw-old" placeholder="Current password" autocomplete="current-password" maxlength="128"><input type="password" id="pw-new" placeholder="New password (at least 8 characters)" autocomplete="new-password" maxlength="128"><button class="pill-btn primary" type="submit">Change password</button><p id="pw-msg" class="smallprint"></p></form></details>`;
  const del=ACC.deletion?`<p class="smallprint">Your account is scheduled for deletion on <b>${fmtDate(ACC.deletion.scheduled_for)}</b>. You can cancel until then.</p><div class="action-list"><button class="pill-btn primary" data-acc="cancel-delete">Cancel deletion</button></div>`:`<p class="smallprint">Deleting your account permanently removes your budget. It is deleted 10 days after you request it, and you can cancel during that time.</p><div class="action-list"><button class="pill-btn" data-acc="delete">🗑 Delete account</button></div>`;
- return `<article class="panel"><h3>👤 Account</h3><p class="smallprint"><b>${escape(a.who)}</b> · ${escape(a.contact)}</p><div class="action-list"><button class="pill-btn" data-acc="logout">Log out</button></div>${del}</article>`}
+ return `<article class="panel"><h3>👤 Account</h3><p class="smallprint"><b>${escape(a.who)}</b> · ${escape(a.contact)}</p><div class="action-list"><button class="pill-btn" data-acc="logout">Log out</button></div>${del}${pwBlock}</article>`}
 function renderMenuAccount(){const html=(!accountsOn()||!ACC.user)?'':(()=>{const a=accountInfo();return `<div class="menu-account-row"><div><b>${escape(a.who)}</b><small>${escape(a.contact)}</small></div><button type="button" class="tiny-btn" data-acc="logout">Log out</button></div>`})();
  const m=$('menu-account');if(m)m.innerHTML=html;
  const side=$('side-account');if(side){side.innerHTML=(!accountsOn()||!ACC.user)?'':(()=>{const a=accountInfo();return `<b>${escape(a.who)}</b><small>${escape(a.contact)}</small><button type="button" class="tiny-btn" data-acc="logout">Log out</button>`})()}}
@@ -537,8 +552,23 @@ async function startAccounts(){if(!accountsOn())return;
  if(data&&data.session){if(!ACC.user)loadAccount(data.session.user)}
  else if(!ACC.user)showAuth('login');}
 $('auth-form').addEventListener('submit',onAuthSubmit);$('auth-switch').addEventListener('click',()=>{ACC.mode=ACC.mode==='signup'?'login':'signup';renderAuth()});
-$('auth-back').addEventListener('click',()=>{ACC.mode='signup';renderAuth()});
+$('auth-back').addEventListener('click',()=>{ACC.mode=ACC.mode==='verify'?'signup':'login';renderAuth()});
+$('auth-forgot').addEventListener('click',()=>{ACC.mode='forgot';renderAuth()});
 $('auth-resend').addEventListener('click',resendCode);
+async function changePassword(){const msg=$('pw-msg');const set=t=>{msg.textContent=t};try{await changePasswordInner(set)}catch(e){set(e.message||'Could not change the password. Try again.')}}
+async function changePasswordInner(set){
+ const old=($('pw-old').value||''),nw=($('pw-new').value||'');
+ if(!old)return set('Enter your current password.');
+ if(nw.length<8)return set('Use at least 8 characters for the new password.');
+ if(nw===old)return set('Choose a different password from the current one.');
+ if(!ACC.user||!ACC.user.email)return set('Password change works for email accounts.');
+ set('Checking…');
+ const {error}=await supa().auth.signInWithPassword({email:ACC.user.email,password:old});
+ if(error)return set('Your current password is wrong.');
+ const {error:e2}=await supa().auth.updateUser({password:nw});
+ if(e2)return set(authErr(e2));
+ $('pw-old').value='';$('pw-new').value='';set('Password changed ✓');}
+document.addEventListener('submit',ev=>{if(ev.target&&ev.target.id==='pw-form'){ev.preventDefault();changePassword()}});
 document.addEventListener('click',ev=>{const a=ev.target.closest('[data-acc]');if(!a)return;const k=a.dataset.acc;if(k==='logout')logOut();else if(k==='delete')requestDelete();else if(k==='cancel-delete')cancelDelete()});
 document.addEventListener('click',ev=>{let lg=ev.target.closest('[data-lang]');if(lg){setLang(lg.dataset.lang);return}setTimeout(translateDOM,0)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRates(false)});
