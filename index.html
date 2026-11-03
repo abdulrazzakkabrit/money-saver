@@ -648,16 +648,16 @@ async function unsubscribePush(){try{const reg=await navigator.serviceWorker.rea
  if(sub){if(accountsOn()&&ACC.user)await supa().from('push_subscriptions').delete().eq('endpoint',sub.endpoint);await sub.unsubscribe()}}catch(e){}}
 /* Feedback: users send comments about bugs or issues; they are stored in the feedback table */
 function feedbackPanel(){return `<article class="panel"><h3>💬 Feedback</h3><p class="smallprint">Found a bug or something not working? Tell us here.</p><div class="form-field full"><label for="fb-text">Your comment</label><textarea id="fb-text" rows="4" maxlength="800" placeholder="What happened? What did you expect?"></textarea></div><div class="action-list"><button class="pill-btn" data-feedback-photo>📷 Add screenshot</button></div><p class="smallprint" id="fb-photo-state"></p><input type="file" id="fb-file" accept="image/*" hidden><div class="action-list"><button class="pill-btn primary" data-feedback-send>Send feedback</button></div></article>`}
-/* Support: optional donation. The donor picks the amount and is sent to the payment page. */
+/* Support app development: optional contribution. The user picks the amount. */
 const SUPPORT_PAYPAL='Stelen95';
 const SUPPORT_AMOUNTS=[2,5,10];
 let supportAmount=5;
-function supportPanel(){return `<article class="panel"><h3>❤️ Support Money Saver</h3><p class="smallprint">Money Saver is free. If it helps you, you can chip in to help make it better. Choose how much:</p><div class="form-field full"><label for="support-custom">Or another amount (USD)</label><input id="support-custom" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="e.g. 7"></div><div class="action-list"><button class="pill-btn primary" type="button" data-support-go>💝 Donate</button></div><p class="smallprint" id="support-state">Thank you for supporting us!</p></article>`}
+function supportPanel(){return `<article class="panel"><h3>🛠 Support app development</h3><p class="smallprint">Money Saver is free. If you would like to help us keep improving it, you can contribute any amount you choose.</p><div class="form-field full"><label for="support-custom">Or another amount (USD)</label><input id="support-custom" type="number" min="1" max="500" step="1" inputmode="numeric" placeholder="e.g. 7"></div><div class="action-list"><button class="pill-btn primary" type="button" data-support-go>Contribute</button></div><p class="smallprint" id="support-state">Thank you for your support!</p></article>`}
 function supportChosen(){const c=Math.floor(Number($('support-custom')?.value));return c>=1&&c<=500?c:0}
-function refreshSupportButton(){const b=document.querySelector('[data-support-go]');if(b)b.textContent='💝 Donate'}
+function refreshSupportButton(){const b=document.querySelector('[data-support-go]');if(b)b.textContent='Contribute'}
 function donate(){
  const amount=supportChosen();
- if(!SUPPORT_PAYPAL||SUPPORT_PAYPAL.startsWith('PAYPAL_HANDLE')){toast('Donations are not set up yet. Thank you for wanting to help!');return}
+ if(!SUPPORT_PAYPAL||SUPPORT_PAYPAL.startsWith('PAYPAL_HANDLE')){toast('Contributions are not set up yet. Thank you for wanting to help!');return}
  window.open('https://paypal.me/'+encodeURIComponent(SUPPORT_PAYPAL)+(amount?'/'+amount+'USD':''),'_blank','noopener');
 }
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-support-go]'))donate()});
