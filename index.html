@@ -1103,7 +1103,20 @@ document.addEventListener('click',ev=>{const a=ev.target.closest('[data-acc]');i
 document.addEventListener('click',ev=>{let lg=ev.target.closest('[data-lang]');if(lg){setLang(lg.dataset.lang);return}setTimeout(translateDOM,0)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRates(false)});
 try{let t=localStorage.getItem('money-saver-theme');if(t==='dark'||t==='light')state.theme=t}catch(e){}
-uiLang=loadLang();applyLang();applyTheme();if(!accountsOn())hideAuth();render();const inGuide=n=>!!(n&&n.nodeType===1&&(n.id==='guide-ov'||(n.closest&&n.closest('#guide-ov'))));new MutationObserver(muts=>{if(muts.every(m=>inGuide(m.target)||[...m.addedNodes,...m.removedNodes].every(inGuide)))return;clearTimeout(window.__trT);window.__trT=setTimeout(translateDOM,0)}).observe(document.body,{childList:true,subtree:true});refreshRates(false);startAccounts();
+uiLang=loadLang();applyLang();applyTheme();if(!accountsOn())hideAuth();render();/* Overview: swipe left or right to move to the next or previous month (the arrows still work too) */
+(function(){
+ const view=$('view'); let sw=null;
+ view.style.touchAction='pan-y';
+ view.addEventListener('touchstart',e=>{if(active!=='dashboard'||monthEdit||e.touches.length!==1)return;if(e.target.closest('input,textarea,select,[data-month-grip]'))return;const t=e.touches[0];sw={x:t.clientX,y:t.clientY,t:Date.now(),dx:0,lock:null}},{passive:true});
+ view.addEventListener('touchmove',e=>{if(!sw)return;const t=e.touches[0];const dx=t.clientX-sw.x,dy=t.clientY-sw.y;if(sw.lock===null){if(Math.abs(dx)<8&&Math.abs(dy)<8)return;sw.lock=Math.abs(dx)>Math.abs(dy)?'x':'y'}if(sw.lock!=='x')return;sw.dx=dx;view.style.transition='none';view.style.transform='translateX('+(dx*0.85)+'px)';view.style.opacity=String(Math.max(.6,1-Math.abs(dx)/600))},{passive:true});
+ function endSwipe(){if(!sw)return;const s=sw;sw=null;if(s.lock!=='x')return;const dx=s.dx;const quick=Math.abs(dx)>30&&Math.abs(dx)/(Date.now()-s.t+1)>0.45;const go=Math.abs(dx)>Math.min(90,view.clientWidth*0.25)||quick;
+  if(!go){view.style.transition='transform .22s ease, opacity .22s ease';view.style.transform='';view.style.opacity='';return}
+  const dir=dx<0?1:-1;view.style.transition='none';view.style.transform='';view.style.opacity='';monthShift(dir);
+  view.animate([{transform:'translateX('+(dir*70)+'px)',opacity:.2},{transform:'none',opacity:1}],{duration:280,easing:'cubic-bezier(.2,.8,.2,1)'})}
+ view.addEventListener('touchend',endSwipe);
+ view.addEventListener('touchcancel',()=>{sw=null;view.style.transition='';view.style.transform='';view.style.opacity=''});
+})();
+const inGuide=n=>!!(n&&n.nodeType===1&&(n.id==='guide-ov'||(n.closest&&n.closest('#guide-ov'))));new MutationObserver(muts=>{if(muts.every(m=>inGuide(m.target)||[...m.addedNodes,...m.removedNodes].every(inGuide)))return;clearTimeout(window.__trT);window.__trT=setTimeout(translateDOM,0)}).observe(document.body,{childList:true,subtree:true});refreshRates(false);startAccounts();
 })();
 </script>
 
