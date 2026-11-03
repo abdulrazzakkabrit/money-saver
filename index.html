@@ -619,13 +619,18 @@ async function resendCode(){if(ACC.mode!=='reset'&&!ACC.pending)return;if(ACC.co
 /* Budget storage: one private row per account, protected by database rules */
 function normState(){if(!state.months||typeof state.months!=='object')state.months={};if(!state.deleted||typeof state.deleted!=='object')state.deleted={};initCustoms();initGoals();initCur();initTheme();state.rates=cleanRates(state.rates);if(!state.months[state.month])state.months[state.month]=[]}
 /* New-user welcome: shown once, on the first sign-in of a brand-new account (created within 7 days) */
+function markGuideDone(u){
+ try{localStorage.setItem('money-saver-welcomed:'+u.id,'1')}catch(e){}
+ try{const r=supa().auth.updateUser({data:{guide_done:true}});if(r&&r.catch)r.catch(()=>{})}catch(e){}
+}
 function maybeWelcome(){
  try{
    const u=ACC.user; if(!u||!u.id)return;
-   const key='money-saver-welcomed:'+u.id;
-   if(localStorage.getItem(key))return;
-   localStorage.setItem(key,'1');
+   if(u.user_metadata&&u.user_metadata.guide_done)return;
+   let seen=false;try{seen=!!localStorage.getItem('money-saver-welcomed:'+u.id)}catch(e){}
+   if(seen)return;
    const made=Date.parse(u.created_at||'');
+   markGuideDone(u);
    if(!made||Date.now()-made>7*86400000)return;
    showNewUserWelcome();
  }catch(e){}
@@ -1110,7 +1115,7 @@ document.addEventListener('click',ev=>{const a=ev.target.closest('[data-acc]');i
 document.addEventListener('click',ev=>{let lg=ev.target.closest('[data-lang]');if(lg){setLang(lg.dataset.lang);return}setTimeout(translateDOM,0)});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRates(false)});
 try{let t=localStorage.getItem('money-saver-theme');if(t==='dark'||t==='light')state.theme=t}catch(e){}
-uiLang=loadLang();applyLang();applyTheme();if(!accountsOn())hideAuth();render();new MutationObserver(()=>{clearTimeout(window.__trT);window.__trT=setTimeout(translateDOM,0)}).observe(document.body,{childList:true,subtree:true});setTimeout(celebrate,350);refreshRates(false);startAccounts();
+uiLang=loadLang();applyLang();applyTheme();if(!accountsOn())hideAuth();render();const inGuide=n=>!!(n&&n.nodeType===1&&(n.id==='guide-ov'||(n.closest&&n.closest('#guide-ov'))));new MutationObserver(muts=>{if(muts.every(m=>inGuide(m.target)||[...m.addedNodes,...m.removedNodes].every(inGuide)))return;clearTimeout(window.__trT);window.__trT=setTimeout(translateDOM,0)}).observe(document.body,{childList:true,subtree:true});setTimeout(celebrate,350);refreshRates(false);startAccounts();
 })();
 </script>
 
