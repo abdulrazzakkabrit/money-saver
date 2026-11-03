@@ -343,7 +343,7 @@ function renderDashboard(){let cur=dispCur();let t=totals(cur);let spent=t.bills
  let small=(e)=>`<div class="list-row"><span class="list-icon">${TYPES[e.type].emoji}</span><div class="list-info"><strong>${escape(e.name)}</strong><small>${TYPES[e.type].label}</small></div><b class="list-amount">${fmt(ea(e,cur),cur)}</b></div>`;
  let bc=spendByCategory(cur);
  return `${state.demo?`<div class="demo-banner"><span>✨ <b>Sample budget:</b> example amounts to explore. Start fresh when you're ready.</span><button data-action="clear-demo">Start my own budget</button></div>`:''}
- <div class="quick-actions"><button class="pill-btn primary" data-add="expenses">＋ Add entry</button><button class="pill-btn" data-action="scan-receipt">📷 Scan receipt</button></div>
+ 
  ${curPills()}
  <section class="section"><div class="stat-grid">${cardStat('Income',t.income,'received this month',cur,'blue')}${cardStat('Spent',spent,'bills + expenses + debts',cur,'peach')}${cardStat('Saved',t.savings,'put aside',cur,'purple')}${cardStat('Remaining',remaining,'income − spent − saved',cur,'mint')}</div></section>
  <section class="section"><div class="dashboard-grid"><article class="panel"><h3>Money distribution</h3><p class="help">Where this month's money goes · ${cur}</p><div class="donut-row"><div class="donut" style="background:conic-gradient(${stops})"><div class="donut-inner"><small>Total out</small><strong>${fmt(totSeg,cur)}</strong></div></div><div class="legend">${legend}</div></div></article><article class="panel"><div class="section-title"><h3>Biggest amounts</h3></div>${act.length?act.map(small).join(''):'<div class="empty">Add entries to see them here.</div>'}</article></div></section>
