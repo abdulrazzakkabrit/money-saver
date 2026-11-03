@@ -347,7 +347,7 @@ function difference(type,planned,actual){let v=(type==='income'?actual-planned:p
 function renderCategory(type){let tt=TYPES[type];let all=entries().filter(e=>e.type===type);
  let cur=dispCur();let curs=[cur];
  let totalsByCur=fmt(all.reduce((a,e)=>a+ea(e,cur),0),cur);
- let rows=all.map(e=>{let c=cur;return `<tr><td><div class="row-title">${escape(e.name)}</div><div class="category-badge">${escape(builtinCategory(e))}</div>${e.receipt?`<div class="receipt-mini">📷 Receipt${e.date?' · '+escape(e.date):''}</div>`:''}${e.note?`<div class="row-sub">${escape(e.note)}</div>`:''}</td><td class="num"><b>${fmt(ea(e,cur),cur)}</b></td><td><div class="row-actions">${type==='debts'?`<button class="tiny-btn" data-debt-remind="${escape(e.id)}" aria-label="Set a reminder to close this debt">🔔</button>`:''}<button class="tiny-btn" data-edit="${escape(e.id)}">Edit</button><button class="tiny-btn danger" data-delete="${escape(e.id)}">×</button></div></td></tr>`}).join('');
+ let rows=all.map(e=>{let c=cur;return `<tr><td><div class="row-title">${escape(e.name)}</div><div class="category-badge">${escape(builtinCategory(e))}</div>${e.receipt?`<div class="receipt-mini">📷 Receipt${e.date?' · '+escape(e.date):''}</div>`:''}${e.note?`<div class="row-sub">${escape(e.note)}</div>`:''}</td><td class="num"><b>${fmt(ea(e,cur),cur)}</b></td><td><div class="row-actions">${type==='debts'?`<button class="tiny-btn" data-debt-remind="${escape(e.id)}" aria-label="Set a reminder to close this debt">🔔</button><button class="tiny-btn" data-debt-note="${escape(e.id)}" aria-label="Write a note for this debt">📝</button>`:''}<button class="tiny-btn" data-edit="${escape(e.id)}">Edit</button><button class="tiny-btn danger" data-delete="${escape(e.id)}">×</button></div></td></tr>`}).join('');
  let breakdown=curs.map(c=>{let map={};for(let e of all){let k=builtinCategory(e);map[k]=(map[k]||0)+ea(e,cur)}let bd=Object.entries(map).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);return bd.length>1?`<section class="section panel"><div class="section-title"><h3>By category</h3><small>${tt.noun} · ${c}</small></div>${breakdownBars(bd,0,c)}</section>`:''}).join('');
  return `<section class="category-head"><div><h2>${tt.emoji} ${tt.label}</h2><p>${tt.description}</p></div><div class="quick-actions" style="margin-top:0">${type==='expenses'?'<button class="pill-btn" data-action="scan-receipt">📷 Scan receipt</button>':''}<button class="pill-btn primary" data-add="${type}">＋ Add ${type==='income'?'income':'item'}</button></div></section><section class="category-grid"><div class="small-total"><small>Entries</small><strong>${all.length}</strong></div><div class="small-total" style="grid-column:span 2"><small>Total ${tt.noun} this month</small><strong>${totalsByCur}</strong></div></section>${breakdown}<section class="section panel"><div class="budget-table-wrap"><table class="budget-table"><thead><tr><th>Item</th><th>Amount</th><th>Manage</th></tr></thead><tbody>${rows||`<tr><td colspan="3"><div class="empty">No entries yet — tap “＋ Add” to start.</div></td></tr>`}</tbody></table></div></section><div class="tip">💡 Everything saves automatically on this device. Use Settings → Export backup to keep a copy.</div>`
 }
@@ -757,6 +757,25 @@ document.addEventListener('click',ev=>{const n=ev.target.closest('[data-notify-s
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-feedback-send]'))sendFeedback()});
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-feedback-photo]'))$('fb-file')?.click()});
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-debt-remind]');if(b)openDebtReminder(b.dataset.debtRemind)});
+/* Debt notes: a short note for this debt, shown under its name on the row */
+function openDebtNote(entryId){
+ const e=entries().find(x=>x.id===entryId);if(!e)return;
+ const old=$('debt-note-modal');if(old)old.remove();
+ const el=document.createElement('div');el.className='modal-backdrop';el.id='debt-note-modal';
+ el.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="dn-title"><h2 id="dn-title">📝 Note</h2><p class="smallprint">${escape(e.name)}</p><div class="form-field full"><label for="dn-text">Your note</label><textarea id="dn-text" rows="4" maxlength="200" placeholder="For example: pay extra in December">${escape(e.note||'')}</textarea></div><div class="modal-buttons"><button class="pill-btn" type="button" id="dn-cancel">Cancel</button><button class="pill-btn primary" type="button" id="dn-save">Save note</button></div></div>`;
+ document.body.appendChild(el);document.body.style.overflow='hidden';
+ const close=()=>{el.remove();document.body.style.overflow=''};
+ $('dn-cancel').onclick=close;
+ el.addEventListener('click',ev=>{if(ev.target===el)close()});
+ $('dn-save').onclick=()=>{
+   const text=$('dn-text').value.trim().slice(0,200);
+   e.note=text;
+   persist();render();close();
+   toast(text?'Note saved ✓':'Note removed');
+ };
+}
+document.addEventListener('click',ev=>{const n=ev.target.closest('[data-debt-note]');if(n)openDebtNote(n.dataset.debtNote)});
+
 document.addEventListener('click',ev=>{const e=ev.target.closest('[data-pw-eye]');if(!e)return;const inp=e.parentElement.querySelector('input');if(!inp)return;const show=inp.type==='password';inp.type=show?'text':'password';e.classList.toggle('shown',show);e.setAttribute('aria-label',show?'Hide password':'Show password')});
 document.addEventListener('change',ev=>{if(ev.target.id==='fb-file')attachFeedbackPhoto(ev.target.files&&ev.target.files[0])});
 function accountPanel(){if(!accountsOn()||!ACC.user)return '';const a=accountInfo();
