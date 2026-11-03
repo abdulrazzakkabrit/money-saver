@@ -74,6 +74,16 @@
 .square-tile h3{margin:0;font-size:15px}
 .square-tile .theme-toggle{flex-direction:column;gap:8px;margin-top:auto}
 .square-tile .theme-btn{flex:none;padding:10px 8px;font-size:13px}
+.assist-modal{width:min(calc(100vw - 24px),440px);max-height:88vh;display:flex;flex-direction:column;gap:10px;text-align:left;box-sizing:border-box}
+.assist-head{display:flex;justify-content:space-between;align-items:center}
+.assist-head h2{margin:0}
+.assist-log{display:flex;flex-direction:column;gap:8px;min-height:140px;max-height:40vh;overflow:auto;padding:4px 2px}
+.assist-msg{max-width:88%;padding:10px 12px;border-radius:14px;font-size:14.5px;line-height:1.5;white-space:pre-line;background:#eef6f1;color:#222;align-self:flex-start}
+.assist-msg.me{align-self:flex-end;background:#d9f3e2}
+.assist-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:110px;overflow:auto}
+.assist-chips button{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #cfe3d7;background:#f8fcf9;color:#24774c;cursor:pointer}
+.assist-form{display:flex;gap:8px}
+.assist-form input{flex:1;min-width:0;padding:10px 12px;font:inherit;border:1px solid #cfe3d7;border-radius:12px;color:#222;background:#fff}
 .wb-text{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:60;font-size:clamp(28px,8vw,44px);font-weight:800;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.45);animation:wbFade linear both}
 @keyframes wbFade{0%{opacity:0}18%{opacity:1}78%{opacity:1}100%{opacity:0}}
 .welcome-modal{text-align:center;width:min(100%,400px);animation:welPop .45s cubic-bezier(.2,.9,.3,1.2) both}
@@ -463,7 +473,7 @@ function saveGoal(ev){ev.preventDefault();let name=safeString($('goal-name').val
 function openContribModal(goalId){let g=state.goals.find(x=>x.id===goalId);if(!g)return;$('contrib-form').reset();$('contrib-goal-id').value=goalId;$('contrib-date').value=localISODate();$('contrib-sub').textContent=`Adding money to “${g.name}”.`;$('contrib-modal').hidden=false;document.body.style.overflow='hidden';setTimeout(()=>$('contrib-amount').focus(),30)}
 function closeContribModal(){$('contrib-modal').hidden=true;document.body.style.overflow=''}
 function saveContrib(ev){ev.preventDefault();let g=state.goals.find(x=>x.id===$('contrib-goal-id').value);if(!g)return;let amount=num($('contrib-amount').value);if(!amount){alert('Enter an amount above zero.');return}let date=/^\d{4}-\d{2}-\d{2}$/.test($('contrib-date').value)?$('contrib-date').value:localISODate();let cur=CUR_CODES.includes(g.currency)?g.currency:defCur(),tgt=num(g.target);let wasReached=tgt>0&&goalSaved(g)>=tgt;(g.contributions??=[]).push({id:uid(),amount,date,note:safeString($('contrib-note').value,160)});let nowReached=tgt>0&&goalSaved(g)>=tgt;state.demo=false;persist();closeContribModal();render();if(!wasReached&&nowReached){toast(`🎉 Goal reached: ${g.name}!`);celebrate()}else{toast(`${fmt(amount,cur)} added ✓`)}}
-function renderNav(){let desktop=$('side-nav'),mobile=$('bottom-nav');let navHTML=NAV.map(([id,label,ic])=>`<button type="button" class="${active===id?'active':''}" data-nav="${id}"><span class="navicon">${ic}</span>${label}</button>`).join('');desktop.innerHTML=navHTML;let menu=$('menu-list');if(menu)menu.innerHTML=navHTML+'<div class="menu-tools"><button type="button" class="menu-sq" data-share-app aria-label="Share app" title="Share app"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9H6.5A1.5 1.5 0 0 0 5 10.5v8A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 17.5 9H16"/><path d="M12 15V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button><button type="button" class="menu-sq" data-guide aria-label="Guide" title="Guide"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg></button></div>';let sections=['dashboard','income','bills','expenses','savings','goals','debts','settings'];mobile.innerHTML=sections.map(id=>{let item=NAV.find(x=>x[0]===id);let short={dashboard:'Home',expenses:'Spend',savings:'Save',goals:'Goals',settings:'More'};return `<button type="button" class="${active===id?'active':''}" data-nav="${id}"><span>${item[2]}</span>${short[id]||item[1]}</button>`}).join('')}
+function renderNav(){let desktop=$('side-nav'),mobile=$('bottom-nav');let navHTML=NAV.map(([id,label,ic])=>`<button type="button" class="${active===id?'active':''}" data-nav="${id}"><span class="navicon">${ic}</span>${label}</button>`).join('');desktop.innerHTML=navHTML;let menu=$('menu-list');if(menu)menu.innerHTML=navHTML+'<div class="menu-tools"><button type="button" class="menu-sq" data-share-app aria-label="Share app" title="Share app"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 9H6.5A1.5 1.5 0 0 0 5 10.5v8A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 17.5 9H16"/><path d="M12 15V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/></svg></button><button type="button" class="menu-sq" data-guide aria-label="Guide" title="Guide"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg></button><button type="button" class="menu-sq" data-assistant aria-label="Assistant" title="Assistant"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H11l-4 3v-3H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg></button></div>';let sections=['dashboard','income','bills','expenses','savings','goals','debts','settings'];mobile.innerHTML=sections.map(id=>{let item=NAV.find(x=>x[0]===id);let short={dashboard:'Home',expenses:'Spend',savings:'Save',goals:'Goals',settings:'More'};return `<button type="button" class="${active===id?'active':''}" data-nav="${id}"><span>${item[2]}</span>${short[id]||item[1]}</button>`}).join('')}
 function render(){renderNav();$('month-select').closest('.month-control').style.display=active==='settings'?'none':'';['scan-fab','scan-top'].forEach(id=>{const el=$(id);if(el)el.style.display=active==='settings'?'none':''});$('month-select').value=state.month;let title=active==='dashboard'?'Your money, clearly.':active==='settings'?'Make it yours.':active==='goals'?'Your savings goals.':TYPES[active].label+', organized.';$('page-title').textContent=title;$('page-description').textContent=active==='dashboard'?`Here's your budget for ${nowName()}.`:active==='settings'?'Simple, private, and fully under your control.':active==='goals'?'Set a target, add money whenever you can, and watch it grow.':`Plan and track your ${TYPES[active].label.toLowerCase()} in ${nowName()}.`;$('subtitle').textContent=active==='dashboard'?'YOUR FINANCIAL SPACE':'MONEY SAVER';$('view').innerHTML=active==='dashboard'?renderDashboard():active==='settings'?renderSettings():active==='goals'?renderGoals():renderCategory(active);renderMenuAccount();translateDOM()}
 function navigate(id){if(id in TYPES||['dashboard','settings','goals'].includes(id)){const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;const go=()=>{active=id;render()};if(document.startViewTransition&&!reduce){document.startViewTransition(go)}else{go();const v=$('view');if(v&&!reduce){v.classList.remove('page-in');void v.offsetWidth;v.classList.add('page-in')}}window.scrollTo({top:0,behavior:'smooth'})}}
 function openModal(type,entry){let el=$('entry-modal');$('entry-form').reset();$('entry-type').innerHTML=Object.entries(TYPES).map(([k,v])=>`<option value="${k}">${v.emoji} ${v.label}</option>`).join('');$('entry-type').value=entry?.type||type||'expenses';$('entry-currency').innerHTML=CUR_CODES.map(c=>`<option value="${c}">${CURRENCIES[c].sym} ${c}</option>`).join('');$('entry-currency').value=CUR_CODES.includes(entry?.currency)?entry.currency:(state.displayCurrency||defCur());$('entry-id').value=entry?.id||'';$('entry-amount').value=entry?num(entry.amount):'';$('entry-note').value=entry?.note||'';$('modal-title').textContent=entry?'Edit entry':'New entry';refreshCategory(entry?builtinCategory(entry):'');el.hidden=false;document.body.style.overflow='hidden';setTimeout(()=>{try{$('entry-amount').focus()}catch(e){}},30)}
@@ -794,6 +804,104 @@ function positionGuide(target){
 function guideNext(){guideIdx++;if(guideIdx>=guideList.length)endGuide();else showGuideStep()}
 function endGuide(){const o=$('guide-ov');if(o)o.remove();document.body.style.overflow='';guideList=[];guideIdx=0}
 window.addEventListener('resize',()=>{if($('guide-ov')&&guideList[guideIdx])positionGuide(guideTarget(guideList[guideIdx].sel))});
+/* Assistant: a built-in guide for Money Saver only. It matches a question to an app topic; it does not use AI. */
+const ASSIST_UI={
+ en:{title:'Assistant',hint:'Ask how to do something in Money Saver, or tap a topic.',placeholder:'Type your question…',send:'Send',hi:'Hi! I can show you how to use Money Saver. Ask me something, or tap a topic.',fallback:'I can only help with Money Saver. Try a topic below, or ask about adding entries, months, goals, reminders, currency, sign-in or settings.'},
+ ar:{title:'المساعد',hint:'اسأل كيف تفعل شيئاً في Money Saver، أو اضغط موضوعاً.',placeholder:'اكتب سؤالك…',send:'إرسال',hi:'مرحباً! أستطيع أن أشرح لك كيف تستخدم Money Saver. اسألني أو اضغط موضوعاً.',fallback:'أستطيع المساعدة في Money Saver فقط. جرّب موضوعاً أدناه، أو اسأل عن إضافة البنود والأشهر والأهداف والتذكيرات والعملات وتسجيل الدخول والإعدادات.'},
+ cs:{title:'Asistent',hint:'Zeptejte se, jak něco udělat v Money Saver, nebo klepněte na téma.',placeholder:'Napište dotaz…',send:'Odeslat',hi:'Ahoj! Ukážu vám, jak používat Money Saver. Zeptejte se nebo klepněte na téma.',fallback:'Pomohu jen s aplikací Money Saver. Zkuste některé téma níže, nebo se zeptejte na přidávání položek, měsíce, cíle, připomenutí, měny, přihlášení nebo nastavení.'}
+};
+const ASSIST_TOPICS=[
+ {id:'add',label:{en:'Add an entry',ar:'إضافة بند',cs:'Přidat položku'},kw:['add','new entry','record','enter','pridat','pridej','zapsat','polozk','اضيف','اضافة','إضافة','ادخل','بند'],
+  a:{en:'On the phone, tap the green + at the bottom right. On a computer, open Income, Bills, Expenses or Debts and tap "+ Add". Fill in the name, amount, currency and category, then tap Save.',
+     ar:'على الهاتف، اضغط زر + الأخضر أسفل يمين الشاشة. على الكمبيوتر، افتح الدخل أو الفواتير أو المصروفات أو الديون واضغط «+ إضافة». اكتب الاسم والمبلغ والعملة والفئة، ثم اضغط حفظ.',
+     cs:'Na telefonu klepněte na zelené + vpravo dole. Na počítači otevřete Příjmy, Účty, Výdaje nebo Dluhy a klepněte na „+ Přidat“. Vyplňte název, částku, měnu a kategorii a potom klepněte na Uložit.'}},
+ {id:'months',label:{en:'Change or start a month',ar:'تغيير الشهر أو بدء شهر',cs:'Změna nebo nový měsíc'},kw:['month','months','new month','change month','previous month','mesic','mesice','měsíc','شهر','الشهر','أشهر','اشهر'],
+  a:{en:'Use the ‹ and › arrows at the top to change the month. To start a new month, tap ＋ New month under "Your saved months" on the Overview page. Tap any month in that list to open it.',
+     ar:'استخدم السهمين ‹ و› في الأعلى لتغيير الشهر. لبدء شهر جديد، اضغط «＋ شهر جديد» تحت «أشهرك المحفوظة» في الصفحة الرئيسية. اضغط أي شهر في القائمة لفتحه.',
+     cs:'Měsíc změníte šipkami ‹ a › nahoře. Nový měsíc vytvoříte tlačítkem ＋ Nový měsíc pod „Vaše uložené měsíce“ na přehledu. Klepnutím na měsíc v seznamu ho otevřete.'}},
+ {id:'editmonths',label:{en:'Delete, restore or reorder months',ar:'حذف الأشهر أو استعادتها أو ترتيبها',cs:'Smazat, obnovit nebo seřadit měsíce'},kw:['delete month','restore','deleted','edit month','reorder','order','drag','move month','smazat','obnovit','smazan','seradit','řaz','upravit','حذف','استعاد','ترتيب','تعديل','اسحب'],
+  a:{en:'On the Overview page, tap ✎ Edit month under "Your saved months". Tap × on a month to move it to Deleted. Restore brings it back. Drag the ⠿ handle to change the order, or tap ↕ Order to sort by date. Tap ✓ Done when you finish.',
+     ar:'في الصفحة الرئيسية اضغط «✎ تعديل الشهر» تحت «أشهرك المحفوظة». اضغط × على شهر لنقله إلى المحذوفات. «استعادة» تعيده. اسحب المقبض ⠿ لتغيير الترتيب، أو اضغط «↕ ترتيب» للترتيب حسب التاريخ. اضغط «✓ تم» عند الانتهاء.',
+     cs:'Na přehledu klepněte pod „Vaše uložené měsíce“ na ✎ Upravit měsíc. Klepnutím na × přesunete měsíc do smazaných. Obnovit jej vrátí. Úchytem ⠿ změníte pořadí, nebo klepněte na ↕ Seřadit a seřadíte podle data. Až budete hotovi, klepněte na ✓ Hotovo.'}},
+ {id:'goals',label:{en:'Savings goals',ar:'الأهداف',cs:'Cíle'},kw:['goal','goals','target','savings goal','cil','cile','cíl','cíle','هدف','الأهداف','اهداف','أهداف'],
+  a:{en:'Open Goals from the menu or the bottom bar. Tap ＋ to create a goal with a name, target amount and currency. To add money, open the goal and tap ＋ Add money. Each goal keeps its own total.',
+     ar:'افتح «الأهداف» من القائمة أو الشريط السفلي. اضغط ＋ لإنشاء هدف باسم ومبلغ مستهدف وعملة. لإضافة مبلغ، افتح الهدف واضغط «＋ إضافة مبلغ». لكل هدف مجموعه الخاص.',
+     cs:'Otevřete Cíle v nabídce nebo ve spodním panelu. Tlačítkem ＋ vytvoříte cíl s názvem, cílovou částkou a měnou. Peníze přidáte tak, že cíl otevřete a klepnete na ＋ Přidat peníze. Každý cíl má vlastní součet.'}},
+ {id:'reminders',label:{en:'Debt reminders',ar:'تذكيرات الديون',cs:'Připomenutí dluhů'},kw:['reminder','remind','bell','alarm','debt reminder','pripomenut','připomenut','تذكير','تذكيرات','جرس','تنبيه'],
+  a:{en:'On the Debts page, tap the 🔔 bell next to a debt. Choose the date, time and how often (once, weekly or monthly), then tap Save reminder. Turn on notifications in Settings so it reaches your phone.',
+     ar:'في صفحة الديون اضغط الجرس 🔔 بجانب الدين. اختر التاريخ والوقت وعدد مرات التكرار (مرة واحدة أو أسبوعياً أو شهرياً)، ثم اضغط «حفظ التذكير». فعّل الإشعارات من الإعدادات حتى يصل التذكير إلى هاتفك.',
+     cs:'Na stránce Dluhy klepněte na zvonek 🔔 u dluhu. Vyberte datum, čas a jak často (jednou, týdně nebo měsíčně) a klepněte na Uložit připomenutí. Zapněte oznámení v Nastavení, aby se připomenutí dostalo do telefonu.'}},
+ {id:'notifications',label:{en:'Turn on notifications',ar:'تشغيل الإشعارات',cs:'Zapnout oznámení'},kw:['notification','notifications','notify','allow','oznam','oznámení','notifikace','اشعار','إشعار','الإشعارات','اشعارات'],
+  a:{en:'Go to Settings → Notifications and tap On. Your browser will ask for permission; tap Allow. On iPhone, add the app to your Home Screen first, then turn on notifications.',
+     ar:'اذهب إلى الإعدادات ← الإشعارات واضغط «تشغيل». سيطلب المتصفح الإذن، فاضغط «سماح». على آيفون، أضف التطبيق إلى الشاشة الرئيسية أولاً ثم فعّل الإشعارات.',
+     cs:'Otevřete Nastavení → Oznámení a klepněte na Zapnout. Prohlížeč požádá o povolení, klepněte na Povolit. Na iPhonu nejdřív přidejte aplikaci na plochu a teprve potom zapněte oznámení.'}},
+ {id:'currency',label:{en:'Currency and rates',ar:'العملة وأسعار الصرف',cs:'Měna a kurzy'},kw:['currency','currencies','exchange','rate','rates','dollar','euro','tnd','czk','mena','měna','kurz','عملة','العملة','صرف','سعر','دينار'],
+  a:{en:'The buttons at the top ($ USD, € EUR, DT TND, Kč CZK) change the currency you see. Amounts are converted with the exchange rates, which update once a day. To type your own rate, go to Settings → Exchange rates and tap Edit.',
+     ar:'الأزرار في الأعلى ($ USD و€ EUR و DT TND و Kč CZK) تغيّر العملة التي تراها. تُحوَّل المبالغ بأسعار الصرف، وتتحدث الأسعار مرة في اليوم. لكتابة سعرك، اذهب إلى الإعدادات ← أسعار الصرف واضغط «تعديل».',
+     cs:'Tlačítka nahoře ($ USD, € EUR, DT TND, Kč CZK) mění měnu, ve které vidíte částky. Částky se přepočítávají směnnými kurzy, které se aktualizují jednou denně. Vlastní kurz zadáte v Nastavení → Směnné kurzy klepnutím na Upravit.'}},
+ {id:'backup',label:{en:'Download my data',ar:'تنزيل بياناتي',cs:'Stáhnout data'},kw:['export','backup','excel','download','save my data','zaloha','záloha','stahnout','stáhnout','تصدير','نسخة','احتياطية','تنزيل','اكسل'],
+  a:{en:'Go to Settings and tap ⬇ Download Excel (all months). It saves all your months in one Excel file.',
+     ar:'اذهب إلى الإعدادات واضغط «⬇ تنزيل Excel (كل الأشهر)». يحفظ كل أشهرك في ملف Excel واحد.',
+     cs:'Otevřete Nastavení a klepněte na ⬇ Stáhnout Excel (všechny měsíce). Uloží všechny měsíce do jednoho souboru Excel.'}},
+ {id:'reset',label:{en:'Reset or erase',ar:'إعادة الضبط أو المسح',cs:'Reset nebo smazání'},kw:['reset','erase','clear','start over','smazat vse','vymazat','resetovat','obnovit vse','مسح','امسح','إعادة الضبط','اعادة الضبط'],
+  a:{en:'In Settings, under Reset, you can clear only the current month or erase everything. Erasing cannot be undone, so download a backup first.',
+     ar:'في الإعدادات، تحت «Reset»، يمكنك مسح الشهر الحالي فقط أو مسح كل شيء. المسح الكامل لا يمكن التراجع عنه، لذا نزّل نسخة احتياطية أولاً.',
+     cs:'V Nastavení v části Reset můžete smazat jen aktuální měsíc, nebo smazat vše. Smazání všeho nejde vrátit zpět, proto si nejdřív stáhněte zálohu.'}},
+ {id:'signin',label:{en:'Sign-in and password',ar:'تسجيل الدخول وكلمة المرور',cs:'Přihlášení a heslo'},kw:['reset password','change password','password','sign in','log in','login','forgot','code','heslo','prihlas','přihlás','zapomen','كلمة المرور','كلمه','تسجيل الدخول','نسيت','الرمز'],
+  a:{en:'Sign in with your email and password. If you forgot your password, tap Forgot password, enter your email and type the 6-digit code we send you. To change your password while signed in, go to Settings → Account → Change password.',
+     ar:'سجّل الدخول ببريدك الإلكتروني وكلمة المرور. إذا نسيتها، اضغط «نسيت كلمة المرور»، أدخل بريدك واكتب الرمز المكوّن من 6 أرقام الذي نرسله إليك. لتغيير كلمة المرور وأنت مسجل الدخول، اذهب إلى الإعدادات ← الحساب ← تغيير كلمة المرور.',
+     cs:'Přihlaste se e-mailem a heslem. Pokud jste heslo zapomněli, klepněte na Zapomněli jste heslo, zadejte e-mail a napište 6místný kód, který vám pošleme. Heslo změníte po přihlášení v Nastavení → Účet → Změnit heslo.'}},
+ {id:'account',label:{en:'Log out or delete account',ar:'تسجيل الخروج أو حذف الحساب',cs:'Odhlášení nebo smazání účtu'},kw:['log out','logout','sign out','delete account','delete my account','account','odhlas','odhlás','smazat ucet','smazat účet','zrusit','zrušit','حساب','الحساب','حذف الحساب','تسجيل الخروج','خروج'],
+  a:{en:'To log out, tap Log out in Settings → Account or in the ☰ menu. To delete your account, go to Settings → Account → Delete account. It is deleted 10 days later, and you can cancel by signing in during those 10 days.',
+     ar:'لتسجيل الخروج اضغط «تسجيل الخروج» في الإعدادات ← الحساب أو في قائمة ☰. لحذف حسابك اذهب إلى الإعدادات ← الحساب ← حذف الحساب. يُحذف بعد 10 أيام، ويمكنك الإلغاء بتسجيل الدخول خلال تلك الأيام.',
+     cs:'Odhlásit se můžete tlačítkem Odhlásit se v Nastavení → Účet nebo v nabídce ☰. Účet smažete v Nastavení → Účet → Smazat účet. Smaže se za 10 dní a během nich můžete smazání zrušit přihlášením.'}},
+ {id:'install',label:{en:'Install the app',ar:'تثبيت التطبيق',cs:'Instalace aplikace'},kw:['install','home screen','add to home','app on phone','instal','domovsk','na plochu','تثبيت','الشاشة الرئيسية'],
+  a:{en:'On iPhone (Safari): tap Share, then Add to Home Screen. On Android (Chrome): open the ⋮ menu and tap Install app. On a computer (Chrome or Edge): click the install icon at the right end of the address bar.',
+     ar:'على آيفون (سفاري): اضغط «مشاركة» ثم «إضافة إلى الشاشة الرئيسية». على أندرويد (كروم): افتح قائمة ⋮ واضغط «تثبيت التطبيق». على الكمبيوتر (كروم أو إيدج): اضغط أيقونة التثبيت في أقصى يمين شريط العنوان.',
+     cs:'Na iPhonu (Safari): klepněte na Sdílet a pak na Přidat na plochu. Na Androidu (Chrome): otevřete nabídku ⋮ a klepněte na Instalovat aplikaci. Na počítači (Chrome nebo Edge): klikněte na ikonu instalace na pravém konci adresního řádku.'}},
+ {id:'receipt',label:{en:'Scan a receipt',ar:'مسح إيصال',cs:'Naskenovat účtenku'},kw:['receipt','scan','camera','photo','ucten','účten','fotk','sken','naskenovat','إيصال','ايصال','كاميرا','صورة','امسح'],
+  a:{en:'Tap the 📷 button and choose a receipt photo. The app suggests the total, store and category. Check them, then save. The photo is not stored.',
+     ar:'اضغط زر 📷 واختر صورة الإيصال. يقترح التطبيق الإجمالي والمتجر والفئة. راجعها ثم احفظ. لا تُخزَّن الصورة.',
+     cs:'Klepněte na tlačítko 📷 a vyberte fotku účtenky. Aplikace navrhne celkovou částku, obchod a kategorii. Zkontrolujte je a uložte. Fotka se neukládá.'}},
+ {id:'look',label:{en:'Language and colors',ar:'اللغة والألوان',cs:'Jazyk a barvy'},kw:['language','theme','dark','light','color','colour','arabic','czech','jazyk','tmav','svetl','světl','barev','režim','rezim','لغة','اللغة','داكن','الوضع','لون','الألوان'],
+  a:{en:'Go to Settings → Language to choose English, العربية or Čeština. Go to Settings → Color mode to switch between Light and Dark.',
+     ar:'اذهب إلى الإعدادات ← اللغة لاختيار English أو العربية أو Čeština. اذهب إلى الإعدادات ← وضع الألوان للتبديل بين الفاتح والداكن.',
+     cs:'V Nastavení → Jazyk vyberte English, العربية nebo Čeština. V Nastavení → Režim barev přepnete světlý a tmavý režim.'}},
+ {id:'support',label:{en:'Support the app',ar:'دعم التطبيق',cs:'Podpořit aplikaci'},kw:['support','donate','donation','contribute','paypal','podpor','prispe','přispě','دعم','تبرع','ساهم'],
+  a:{en:'Go to Settings → Support app development. Type an amount and tap Contribute to open PayPal. Supporting the app is optional.',
+     ar:'اذهب إلى الإعدادات ← دعم تطوير التطبيق. اكتب مبلغاً واضغط «ساهم» لفتح PayPal. دعم التطبيق اختياري.',
+     cs:'Otevřete Nastavení → Podpora vývoje aplikace. Zadejte částku a klepněte na Přispět, otevře se PayPal. Podpora aplikace je dobrovolná.'}},
+ {id:'share',label:{en:'Share and guide',ar:'المشاركة والدليل',cs:'Sdílení a průvodce'},kw:['share','guide','tutorial','how to use','sdilet','sdílet','pruvodce','průvodce','navod','návod','مشاركة','شارك','دليل','شرح'],
+  a:{en:'Tap ☰ at the top right. The arrow square shares the app link. The book square opens the step-by-step guide again.',
+     ar:'اضغط ☰ في أعلى اليمين. المربع الذي به سهم يشارك رابط التطبيق. مربع الكتاب يفتح الدليل خطوة بخطوة مرة أخرى.',
+     cs:'Klepněte na ☰ vpravo nahoře. Čtverec se šipkou sdílí odkaz na aplikaci. Čtverec s knihou znovu otevře průvodce krok za krokem.'}},
+ {id:'feedback',label:{en:'Report a problem',ar:'الإبلاغ عن مشكلة',cs:'Nahlásit problém'},kw:['problem','bug','not working','error','report','feedback','help','chyba','nefunguje','hlaseni','nahlasit','nahlásit','pomoc','مشكلة','خطأ','لا يعمل','مساعدة','ابلاغ','بلاغ','الملاحظات'],
+  a:{en:'Go to Settings → Feedback, write what happened and what you were doing, then tap Send.',
+     ar:'اذهب إلى الإعدادات ← الملاحظات، واكتب ما حدث وما كنت تفعله، ثم اضغط «إرسال الملاحظات».',
+     cs:'Otevřete Nastavení → Zpětná vazba, napište, co se stalo a co jste dělali, a klepněte na Odeslat zpětnou vazbu.'}}
+];
+const assistLog=[];
+function assistLang(){return uiLang==='ar'||uiLang==='cs'?uiLang:'en'}
+function assistNorm(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim()}
+function assistMatch(q){const n=' '+assistNorm(q)+' ';let best=null,score=0;for(const tp of ASSIST_TOPICS){let s=0;for(const k of tp.kw){const kn=assistNorm(k);if(kn&&n.includes(kn))s+=kn.length}if(s>score){score=s;best=tp}}return best}
+function renderAssist(){const box=$('assist-log');if(!box)return;box.innerHTML='';for(const m of assistLog){const d=document.createElement('div');d.className='assist-msg'+(m.who==='me'?' me':'');d.textContent=m.text;box.appendChild(d)}box.scrollTop=box.scrollHeight}
+function assistPush(who,text){assistLog.push({who,text});renderAssist()}
+function askAssist(q){q=String(q||'').trim();if(!q)return;assistPush('me',q);const tp=assistMatch(q);assistPush('bot',tp?tp.a[assistLang()]:assistText().fallback)}
+function askTopic(id){const tp=ASSIST_TOPICS.find(x=>x.id===id);if(!tp)return;assistPush('me',tp.label[assistLang()]);assistPush('bot',tp.a[assistLang()])}
+function assistText(){return ASSIST_UI[assistLang()]}
+function openAssistant(){
+  if($('assist-sheet'))return;
+  const L=assistLang(),U=ASSIST_UI[L];
+  const el=document.createElement('div');el.className='modal-backdrop';el.id='assist-sheet';
+  el.innerHTML='<div class="modal assist-modal" role="dialog" aria-modal="true" aria-labelledby="assist-title"><div class="assist-head"><h2 id="assist-title">'+U.title+'</h2><button type="button" class="tiny-btn" id="assist-close" aria-label="Close">✕</button></div><p class="smallprint">'+U.hint+'</p><div id="assist-log" class="assist-log"></div><div class="assist-chips">'+ASSIST_TOPICS.map(tp=>'<button type="button" data-assist-topic="'+tp.id+'">'+tp.label[L]+'</button>').join('')+'</div><form id="assist-form" class="assist-form"><input id="assist-input" type="text" autocomplete="off" placeholder="'+U.placeholder+'"><button type="submit" class="pill-btn primary">'+U.send+'</button></form></div>';
+  document.body.appendChild(el);document.body.style.overflow='hidden';
+  const close=()=>{el.remove();document.body.style.overflow=''};
+  $('assist-close').onclick=close;
+  el.addEventListener('click',ev=>{if(ev.target===el){close();return}const b=ev.target.closest('[data-assist-topic]');if(b)askTopic(b.dataset.assistTopic)});
+  $('assist-form').onsubmit=ev=>{ev.preventDefault();const v=$('assist-input').value;$('assist-input').value='';askAssist(v)};
+  if(!assistLog.length)assistPush('bot',U.hi);else renderAssist();
+  setTimeout(()=>$('assist-input')&&$('assist-input').focus(),50);
+}
 const APP_LINK='https://abdulrazzakkabrit.github.io/money-saver/';
 function shareApp(){if(navigator.share){navigator.share({title:'Money Saver',text:'My private budget app',url:APP_LINK}).catch(()=>{});return}try{navigator.clipboard.writeText(APP_LINK).then(()=>toast('Link copied ✓')).catch(()=>toast(APP_LINK))}catch(e){toast(APP_LINK)}}
 function notifyOn(){try{return localStorage.getItem(NOTIFY_KEY)==='on'&&('Notification' in window)&&Notification.permission==='granted'}catch(e){return false}}
@@ -848,6 +956,7 @@ document.addEventListener('click',ev=>{if(ev.target.closest('[data-feedback-phot
 document.addEventListener('click',ev=>{const b=ev.target.closest('[data-debt-remind]');if(b)openDebtReminder(b.dataset.debtRemind)});
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-share-app]'))shareApp()});
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-guide]')){closeMenu();startGuide();return}if(ev.target.closest('[data-guide-next]')){guideNext();return}if(ev.target.closest('[data-guide-skip]')){endGuide();return}});
+document.addEventListener('click',ev=>{if(ev.target.closest('[data-assistant]')){closeMenu();openAssistant()}});
 /* Debt notes: a short note for this debt, shown under its name on the row */
 function openDebtNote(entryId){
  const e=entries().find(x=>x.id===entryId);if(!e)return;
