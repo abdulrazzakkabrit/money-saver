@@ -683,12 +683,13 @@ async function sendFeedback(){
 /* Debt reminders: pick a date and a repeat; the server sends the notification on that day */
 function isoDay(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function repeatName(r){return r==='weekly'?'every week':r==='monthly'?'every month':'once'}
-async function loadDebtReminders(){const {data,error}=await supa().from('reminders').select('id,label,next_on,repeat').order('next_on');return error?[]:(data||[])}
+async function loadDebtReminders(){const {data,error}=await supa().from('reminders').select('id,label,next_on,remind_at,repeat').order('remind_at');return error?[]:(data||[])}
+function whenText(r){if(!r.remind_at)return r.next_on;return new Date(r.remind_at).toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
 async function renderDebtReminderList(){
  const box=$('dr-list');if(!box)return;
  const rows=await loadDebtReminders();
  if(!rows.length){box.textContent='No reminders yet.';return}
- box.innerHTML=rows.map(r=>`<div class="row-actions" style="justify-content:space-between;margin:6px 0"><span>${escape(r.label)} · ${escape(r.next_on)} · ${repeatName(r.repeat)}</span><button class="tiny-btn danger" data-dr-del="${escape(r.id)}">×</button></div>`).join('');
+ box.innerHTML=rows.map(r=>`<div class="row-actions" style="justify-content:space-between;margin:6px 0"><span>${escape(r.label)} · ${escape(whenText(r))} · ${repeatName(r.repeat)}</span><button class="tiny-btn danger" data-dr-del="${escape(r.id)}">×</button></div>`).join('');
  box.querySelectorAll('[data-dr-del]').forEach(btn=>btn.onclick=async()=>{await supa().from('reminders').delete().eq('id',btn.dataset.drDel);renderDebtReminderList()});
 }
 function openDebtReminder(entryId){
@@ -697,7 +698,7 @@ function openDebtReminder(entryId){
  const d=new Date();d.setMonth(d.getMonth()+1);
  const old=$('debt-remind-modal');if(old)old.remove();
  const el=document.createElement('div');el.className='modal-backdrop';el.id='debt-remind-modal';
- el.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="dr-title"><h2 id="dr-title">🔔 Reminder to close debt</h2><p class="smallprint">${escape(e.name)}</p><div class="form-field full"><label for="dr-date">Date</label><input id="dr-date" type="date" value="${isoDay(d)}" min="${isoDay(new Date())}"></div><div class="form-field full"><label for="dr-repeat">Repeat</label><select id="dr-repeat"><option value="once">Once</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></div><p class="smallprint" id="dr-warn"></p><div class="modal-buttons"><button class="pill-btn" type="button" id="dr-cancel">Cancel</button><button class="pill-btn primary" type="button" id="dr-save">Save reminder</button></div><h3 style="margin-top:18px">Your reminders</h3><div id="dr-list" class="smallprint">Loading…</div></div>`;
+ el.innerHTML=`<div class="modal" role="dialog" aria-modal="true" aria-labelledby="dr-title"><h2 id="dr-title">🔔 Reminder to close debt</h2><p class="smallprint">${escape(e.name)}</p><div class="form-field full"><label for="dr-date">Date</label><input id="dr-date" type="date" value="${isoDay(d)}" min="${isoDay(new Date())}"></div><div class="form-field full"><label for="dr-time">Time</label><input id="dr-time" type="time" value="08:00"></div><div class="form-field full"><label for="dr-repeat">Repeat</label><select id="dr-repeat"><option value="once">Once</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></div><p class="smallprint" id="dr-warn"></p><div class="modal-buttons"><button class="pill-btn" type="button" id="dr-cancel">Cancel</button><button class="pill-btn primary" type="button" id="dr-save">Save reminder</button></div><h3 style="margin-top:18px">Your reminders</h3><div id="dr-list" class="smallprint">Loading…</div></div>`;
  document.body.appendChild(el);document.body.style.overflow='hidden';
  const close=()=>{el.remove();document.body.style.overflow=''};
  $('dr-cancel').onclick=close;
@@ -706,8 +707,12 @@ function openDebtReminder(entryId){
  $('dr-save').onclick=async()=>{
    const date=$('dr-date').value;
    if(!date){toast('Choose a date');return}
+   const time=$('dr-time').value||'08:00';
    if(date<isoDay(new Date())){toast('Choose today or a later date');return}
-   const {error}=await supa().from('reminders').insert({user_id:ACC.user.id,label:'Close debt: '+e.name.slice(0,80),remind_on:date,next_on:date,repeat:$('dr-repeat').value});
+   const when=new Date(date+'T'+time+':00');
+   if(isNaN(when)){toast('Choose a time');return}
+   if(when<=new Date()){toast('Choose a time later than now');return}
+   const {error}=await supa().from('reminders').insert({user_id:ACC.user.id,label:'Close debt: '+e.name.slice(0,80),remind_on:date,next_on:date,remind_at:when.toISOString(),repeat:$('dr-repeat').value});
    if(error){toast('Could not save the reminder. Try again.');return}
    toast('Reminder saved ✓');renderDebtReminderList();
  };
