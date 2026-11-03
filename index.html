@@ -59,11 +59,12 @@
 .welcome-modal{text-align:center;width:min(100%,400px);animation:welPop .45s cubic-bezier(.2,.9,.3,1.2) both}
 .welcome-modal h2{margin:4px 0 6px;font-size:24px}
 .wel-tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
-.wel-tile{aspect-ratio:1/1;border:1px solid var(--line,#e0dce6);background:var(--card,#faf9fb);border-radius:18px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;overflow:hidden;font-size:11px;text-align:left;animation:welIn .5s both}
+.wel-tile{aspect-ratio:auto;min-height:118px;border:1px solid var(--line,#e0dce6);background:var(--card,#faf9fb);border-radius:18px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;overflow:visible;font-size:11px;text-align:left;animation:welIn .5s both}
 .wel-tile:nth-child(2){animation-delay:.15s}
 .wel-ico{font-size:22px;line-height:1}
 .wel-tile b{font-size:12.5px}
 .wel-tile ol{margin:0;padding-left:14px;display:grid;gap:4px;font-size:10.5px;line-height:1.3;color:var(--muted,#6b6575)}
+.wel-install{margin-top:auto;width:100%;padding:6px 8px;font-size:11.5px}
 .wel-btn{width:100%;animation:welWow 1s ease-in-out .5s 3 both}
 @keyframes welPop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
 @keyframes welIn{from{opacity:0;transform:translateY(10px) scale(.95)}to{opacity:1;transform:none}}
@@ -71,7 +72,7 @@
 .money-rain{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
 .money-bill{position:absolute;top:-50px;font-size:26px;animation-name:billFall;animation-timing-function:linear;animation-fill-mode:forwards}
 @keyframes billFall{to{transform:translate(var(--dx),110vh) rotate(var(--rot))}}
-@media (max-width:360px){.wel-tile{aspect-ratio:auto;min-height:118px}}
+@media (max-width:360px){.wel-tile{aspect-ratio:auto;min-height:0;overflow:visible}}
 @media (prefers-reduced-motion:reduce){.welcome-modal,.wel-tile,.wel-btn{animation:none!important}}
 .pw-wrap{position:relative}
 .pw-wrap input{width:100%;padding-right:46px}
@@ -206,9 +207,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div class="auth-top"><div class="auth-brand">MONEY SAVER</div><button type="button" class="theme-icon" data-auth-theme data-theme-set="light" aria-label="Switch to light mode">☀️</button></div>
 <h2 id="auth-title">Log in</h2>
 <p id="auth-sub" class="help"></p>
-<label id="auth-name-field">Your name<input id="auth-name" autocomplete="name" maxlength="60"></label>
-<label id="auth-id-field">Email<input id="auth-id" autocomplete="username" inputmode="email" placeholder="you@example.com" maxlength="120"></label>
-<label id="auth-pass-field"><span id="auth-pass-label">Password</span><div class="pw-wrap"><input id="auth-pass" type="password" autocomplete="current-password" maxlength="128" placeholder="Minimum 6 characters"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password"><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg></button></div></label>
+<label id="auth-name-field">Your name<input id="auth-name" name="name" autocomplete="name" maxlength="60"></label>
+<label id="auth-id-field">Email<input id="auth-id" name="username" type="email" autocomplete="username" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com" maxlength="120"></label>
+<label id="auth-pass-field"><span id="auth-pass-label">Password</span><div class="pw-wrap"><input id="auth-pass" name="password" type="password" autocomplete="current-password" maxlength="128" placeholder="Minimum 6 characters"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password"><svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="eye-shut" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></svg></button></div></label>
 <label id="auth-code-field">6-digit code<input id="auth-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
 <p id="auth-error" class="auth-error" role="alert"></p>
 <button class="pill-btn primary auth-submit" id="auth-submit" type="submit">Log in</button>
@@ -525,7 +526,7 @@ function renderAuth(){const signup=ACC.mode==='signup',verify=ACC.mode==='verify
  $('auth-name-field').hidden=!signup;$('auth-id-field').hidden=codeScreen;$('auth-pass-field').hidden=verify||forgot;$('auth-code-field').hidden=!codeScreen;
  $('auth-pass-label').textContent=reset?'New password':'Password';
  $('auth-submit').textContent=verify?'Verify':reset?'Set new password':forgot?'Send code':signup?'Create account':'Log in';
- $('auth-switch').hidden=codeScreen||forgot;$('auth-switch').textContent=signup?'I already have an account':'Create an account';
+ $('auth-switch').hidden=codeScreen||forgot;$('auth-pass').setAttribute('autocomplete',signup?'new-password':'current-password');$('auth-switch').textContent=signup?'I already have an account':'Create an account';
  $('auth-forgot').hidden=ACC.mode!=='login';
  $('auth-resend').hidden=!codeScreen;$('auth-back').hidden=!(codeScreen||forgot);
  $('auth-error').textContent='';}
@@ -576,7 +577,7 @@ function showNewUserWelcome(){
  if($('welcome-modal'))return;
  const el=document.createElement('div');
  el.className='modal-backdrop';el.id='welcome-modal';el.style.background='transparent';
- el.innerHTML='<div class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title"><p class="eyebrow">WELCOME</p><h2 id="welcome-title">Welcome to Money Saver 🎉</h2><p class="smallprint">Save the app to your device so it opens like a real app.</p><div class="wel-tiles"><div class="wel-tile"><div class="wel-ico">💻</div><b>On PC</b><ol><li>Click ⊕ in the address bar</li><li>Click Install</li></ol></div><div class="wel-tile"><div class="wel-ico">📱</div><b>On phone</b><ol><li>iPhone: Share, then Add to Home Screen</li><li>Android: ⋮, then Add to Home screen</li></ol></div></div><button type="button" class="pill-btn primary wel-btn" id="welcome-ok">Awesome! ✨</button></div>';
+ el.innerHTML='<div class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title"><p class="eyebrow">WELCOME</p><h2 id="welcome-title">Welcome to Money Saver 🎉</h2><p class="smallprint">Save the app to your device so it opens like a real app.</p><div class="wel-tiles"><div class="wel-tile"><div class="wel-ico">💻</div><b>On PC</b><ol><li>Click ⊕ in the address bar</li><li>Click Install</li></ol><button type="button" class="pill-btn wel-install" data-action="install">📲 Download</button></div><div class="wel-tile"><div class="wel-ico">📱</div><b>On phone</b><ol><li>iPhone: Share, then Add to Home Screen</li><li>Android: ⋮, then Add to Home screen</li></ol><button type="button" class="pill-btn wel-install" data-action="install">📲 Download</button></div></div><button type="button" class="pill-btn primary wel-btn" id="welcome-ok">Awesome! ✨</button></div>';
  document.body.appendChild(el);
  document.body.style.overflow='hidden';
  $('welcome-ok').onclick=()=>{el.remove();document.body.style.overflow='';moneyRain()};
@@ -601,13 +602,14 @@ function moneyRain(){
    setTimeout(()=>box.remove(),4000);
  }catch(e){}
 }
+function savedTheme(){try{const t=localStorage.getItem('money-saver-theme');return t==='dark'||t==='light'?t:null}catch(e){return null}}
 async function loadAccount(user){ACC.user=user;hideAuth();setTimeout(maybeWelcome,600);
  const {data,error}=await supa().from('budgets').select('data').maybeSingle();
  if(error){toast('Could not load your budget. Check your connection.')}
- else if(data&&data.data&&data.data.months){state=data.data}
+ else if(data&&data.data&&data.data.months){state=data.data;if(savedTheme())state.theme=savedTheme()}
  else{ /* first sign-in: bring over this browser's budget, if there is one */
    let local=null;try{local=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(e){}
-   state=(local&&local.months&&!local.demo)?local:emptyState();normState();
+   state=(local&&local.months&&!local.demo)?local:emptyState();normState();if(savedTheme())state.theme=savedTheme();
    if(await saveCloudNow()){try{localStorage.removeItem(STORAGE)}catch(e){}}}
  normState();applyTheme();await loadDeletion();render();}
 function scheduleCloudSave(){clearTimeout(ACC.timer);ACC.timer=setTimeout(saveCloudNow,700)}
