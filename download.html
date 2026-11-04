@@ -63,6 +63,7 @@ main,nav,footer{position:relative;z-index:1}
 .arrow{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--surface-strong);color:var(--ink);font-size:15px;line-height:1;flex:none}
 html[dir="rtl"] .arrow{transform:scaleX(-1)}
 
+.tiles.biz-tiles4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 /* language and currency chips in "What's new" */
 .chip-block{margin-top:22px}.chip-block h4{margin:16px 0 8px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -385,11 +386,23 @@ footer a:hover{text-decoration:underline}
         <h2 data-i18n="biz_h">A business account, made for owners.</h2>
         <p data-i18n="biz_p">Choose Business when you create your account. Shops, restaurants, workshops and salons see their day clearly and stop wasting money.</p>
       </div>
-      <div class="tiles">
+      <div class="tiles biz-tiles4">
         <div class="tile" data-reveal><div class="ico">📈</div><h4 data-i18n="biz1_h">Daily sales and profit</h4><p data-i18n="biz1_p">Enter each day's sales and costs. Profit before and after tax, and VAT to set aside, are worked out for you.</p></div>
         <div class="tile" data-reveal><div class="ico">👥</div><h4 data-i18n="biz2_h">Team, loans and bills</h4><p data-i18n="biz2_p">Salaries with pay days, loans with monthly payments, and bills. Record full or part payments.</p></div>
+        <div class="tile" data-reveal><div class="ico">📦</div><h4 data-i18n="biz4_h">Stock and reorders</h4><p data-i18n="biz4_p">Products with quantity, price and paid or not. Say how long one order lasts, and the app reminds you to order again.</p></div>
         <div class="tile" data-reveal><div class="ico">🗓</div><h4 data-i18n="biz3_h">Payment calendar</h4><p data-i18n="biz3_p">Every payment on one calendar, with reminders before it is due. Reports by month and an Excel export for your accountant.</p></div>
       </div>
+      <div class="head" data-reveal style="margin-top:28px">
+        <span class="eyebrow" data-i18n="plan_eyebrow">Opening a business?</span>
+        <h3 data-i18n="plan_h">A feasibility study, done for you.</h3>
+        <p data-i18n="plan_p">Choose New business when you sign up. Enter what you need to buy, your monthly costs and what you expect to sell, and the app works out the rest.</p>
+      </div>
+      <ul class="checks" data-reveal>
+        <li data-i18n="plan_c1">Start-up costs with a ready checklist for your type of business</li>
+        <li data-i18n="plan_c2">Total budget needed, break-even, payback and return on investment</li>
+        <li data-i18n="plan_c3">A small, a good and a big version of your business, side by side</li>
+        <li data-i18n="plan_c4">When you open, launch it: your team, costs and loan move over</li>
+      </ul>
     </div>
   </section>
 
@@ -405,6 +418,7 @@ footer a:hover{text-decoration:underline}
         <li data-i18n="new2">New currencies, and a "Your currency" choice in Settings for personal and business accounts.</li>
         <li data-i18n="new3">Business mode: a short guided tour, part payments and extra loan repayments, VAT, and Excel export.</li>
         <li data-i18n="new4">Phone and computer no longer overwrite each other: changes made on both are kept.</li>
+        <li data-i18n="new6">Business accounts are separate from personal ones. Running businesses get stock and team pay; new businesses get a feasibility study.</li>
         <li data-i18n="new5">Each account keeps the type it was created with. For the other kind, create a second account.</li>
       </ul>
       <div class="chip-block" data-reveal>
@@ -659,7 +673,18 @@ footer a:hover{text-decoration:underline}
       app_b:'App',app_s:'Add it to your home screen and open it like any app.',app_n:'You need: Chrome, Edge or Safari, and about one minute.',
       web_b:'Web page',web_s:'Open it in your browser now. Nothing to install.',web_n:'You need: any modern browser and an internet connection.',
       nav_new:"What's new",dl_list2:"English, Arabic, Czech and French",dl_list4:"Personal or business account",dl_list5:"14 currencies, converted for you",biz_eyebrow:"For businesses",biz_h:"A business account, made for owners.",biz_p:"Choose Business when you create your account. Shops, restaurants, workshops and salons see their day clearly and stop wasting money.",biz1_h:"Daily sales and profit",biz1_p:"Enter each day's sales and costs. Profit before and after tax, and VAT to set aside, are worked out for you.",biz2_h:"Team, loans and bills",biz2_p:"Salaries with pay days, loans with monthly payments, and bills. Record full or part payments.",biz3_h:"Payment calendar",biz3_p:"Every payment on one calendar, with reminders before it is due. Reports by month and an Excel export for your accountant.",new_h:"What's new",new_p:"The latest update of Money Saver, for personal and business accounts.",new1:"French: the app, the sign-in screen and this website are now in English, Arabic, Czech and French.",new2:"New currencies, and a \"Your currency\" choice in Settings for personal and business accounts.",new3:"Business mode: a short guided tour, part payments and extra loan repayments, VAT, and Excel export.",new4:"Phone and computer no longer overwrite each other: changes made on both are kept.",new5:"Each account keeps the type it was created with. For the other kind, create a second account.",lang_title:"Languages",cur_title:"Currencies",
-      explore_x:''
+      explore_x:'',
+      biz2_p:"Salaries before and after tax, with Confirm for each person or Confirm all. Loans and bills, paid in full or in part.",
+      biz4_h:"Stock and reorders",
+      biz4_p:"Products with quantity, price and paid or not. Say how long one order lasts, and the app reminds you to order again.",
+      plan_eyebrow:"Opening a business?",
+      plan_h:"A feasibility study, done for you.",
+      plan_p:"Choose New business when you sign up. Enter what you need to buy, your monthly costs and what you expect to sell, and the app works out the rest.",
+      plan_c1:"Start-up costs with a ready checklist for your type of business",
+      plan_c2:"Total budget needed, break-even, payback and return on investment",
+      plan_c3:"A small, a good and a big version of your business, side by side",
+      plan_c4:"When you open, launch it: your team, costs and loan move over",
+      new6:"Business accounts are separate from personal ones. Running businesses get stock and team pay; new businesses get a feasibility study."
     },
     ar:{
       nav_new:"الجديد",dl_list2:"الإنجليزية والعربية والتشيكية والفرنسية",dl_list4:"حساب شخصي أو حساب عمل",dl_list5:"14 عملة، تُحوَّل لك تلقائياً",biz_eyebrow:"للأعمال",biz_h:"حساب عمل مصمَّم لأصحاب المشاريع.",biz_p:"اختر «عمل» عند إنشاء حسابك. المحلات والمطاعم والورش والصالونات ترى يومها بوضوح وتتوقف عن هدر المال.",biz1_h:"المبيعات اليومية والربح",biz1_p:"أدخل مبيعات كل يوم وتكاليفه. يُحسب لك الربح قبل الضريبة وبعدها، وضريبة القيمة المضافة التي يجب تخصيصها.",biz2_h:"الفريق والقروض والفواتير",biz2_p:"الرواتب مع أيام الدفع، والقروض مع أقساطها الشهرية، والفواتير. سجّل الدفعات الكاملة أو الجزئية.",biz3_h:"تقويم الدفعات",biz3_p:"كل الدفعات في تقويم واحد، مع تذكير قبل موعدها. تقارير شهرية وتصدير Excel لمحاسبك.",new_h:"الجديد",new_p:"آخر تحديث لتطبيق Money Saver، للحسابات الشخصية وحسابات العمل.",new1:"الفرنسية: التطبيق وشاشة الدخول وهذا الموقع متاحة الآن بالإنجليزية والعربية والتشيكية والفرنسية.",new2:"عملات جديدة، وخيار «عملتك» في الإعدادات للحسابات الشخصية وحسابات العمل.",new3:"وضع العمل: جولة إرشادية قصيرة، دفعات جزئية وسداد إضافي للقروض، ضريبة القيمة المضافة، وتصدير Excel.",new4:"الهاتف والكمبيوتر لم يعودا يمحوان تغييرات بعضهما: تُحفظ التغييرات من الاثنين.",new5:"كل حساب يحتفظ بالنوع الذي أُنشئ به. للنوع الآخر، أنشئ حساباً ثانياً.",lang_title:"اللغات",cur_title:"العملات",
@@ -699,7 +724,18 @@ footer a:hover{text-decoration:underline}
       ch_h:'كيف تريده؟',ch_close:'إغلاق',
       zip_b:'ملف مضغوط (Zip)',zip_s:'ملف واحد للحفظ. فكّ ضغطه وافتح Money-Saver.html.',zip_n:'تحتاج: هاتفاً أو كمبيوتراً يفتح الملفات المضغوطة (معظمها يفعل).',
       app_b:'التطبيق',app_s:'أضفه إلى شاشتك الرئيسية وافتحه كأي تطبيق.',app_n:'تحتاج: Chrome أو Edge أو Safari، ودقيقة تقريباً.',
-      web_b:'صفحة ويب',web_s:'افتحه في متصفحك الآن. لا شيء للتثبيت.',web_n:'تحتاج: أي متصفح حديث واتصالاً بالإنترنت.'
+      web_b:'صفحة ويب',web_s:'افتحه في متصفحك الآن. لا شيء للتثبيت.',web_n:'تحتاج: أي متصفح حديث واتصالاً بالإنترنت.',
+      biz2_p:"الرواتب قبل الضريبة وبعدها، مع تأكيد لكل شخص أو تأكيد الكل. القروض والفواتير، مدفوعة كاملة أو جزئياً.",
+      biz4_h:"المخزون وإعادة الطلب",
+      biz4_p:"منتجات بالكمية والسعر ومدفوعة أو لا. حدد المدة التي تكفيها الطلبية، ويذكّرك التطبيق بالطلب من جديد.",
+      plan_eyebrow:"تفتح مشروعاً؟",
+      plan_h:"دراسة جدوى جاهزة لك.",
+      plan_p:"اختر «مشروع جديد» عند التسجيل. أدخل ما تحتاج لشرائه وتكاليفك الشهرية وما تتوقع بيعه، ويحسب التطبيق الباقي.",
+      plan_c1:"تكاليف التأسيس مع قائمة جاهزة لنوع مشروعك",
+      plan_c2:"إجمالي الميزانية اللازمة ونقطة التعادل وفترة الاسترداد والعائد على الاستثمار",
+      plan_c3:"نسخة صغيرة وجيدة وكبيرة من مشروعك جنباً إلى جنب",
+      plan_c4:"عند الافتتاح أطلقه: ينتقل فريقك وتكاليفك وقرضك",
+      new6:"حسابات العمل منفصلة عن الحسابات الشخصية. المشاريع القائمة لها المخزون ورواتب الفريق، والمشاريع الجديدة لها دراسة جدوى."
     },
     cs:{
       nav_new:"Novinky",dl_list2:"Angličtina, arabština, čeština a francouzština",dl_list4:"Osobní nebo firemní účet",dl_list5:"14 měn, převedeno za vás",biz_eyebrow:"Pro firmy",biz_h:"Firemní účet pro majitele.",biz_p:"Při vytváření účtu zvolte Firemní. Obchody, restaurace, dílny a salony vidí svůj den přehledně a přestanou plýtvat penězi.",biz1_h:"Denní tržby a zisk",biz1_p:"Zadejte tržby a náklady každého dne. Zisk před daní a po dani a DPH k odložení se spočítají za vás.",biz2_h:"Tým, úvěry a faktury",biz2_p:"Mzdy se dny výplat, úvěry s měsíčními splátkami a faktury. Zapisujte celé i částečné platby.",biz3_h:"Kalendář plateb",biz3_p:"Všechny platby v jednom kalendáři s připomenutím před splatností. Měsíční přehledy a export do Excelu pro účetního.",new_h:"Co je nového",new_p:"Nejnovější aktualizace Money Saver pro osobní i firemní účty.",new1:"Francouzština: aplikace, přihlašovací obrazovka i tento web jsou nyní v angličtině, arabštině, češtině a francouzštině.",new2:"Nové měny a volba „Vaše měna“ v Nastavení pro osobní i firemní účty.",new3:"Firemní režim: krátká prohlídka, částečné platby a mimořádné splátky úvěrů, DPH a export do Excelu.",new4:"Telefon a počítač se už navzájem nepřepisují: změny z obou se zachovají.",new5:"Každý účet si ponechá typ, se kterým byl vytvořen. Pro druhý typ si vytvořte další účet.",lang_title:"Jazyky",cur_title:"Měny",
@@ -739,7 +775,18 @@ footer a:hover{text-decoration:underline}
       ch_h:'Jak to chcete?',ch_close:'Zavřít',
       zip_b:'Soubor ZIP',zip_s:'Jeden soubor k uložení. Rozbalte ho a otevřete Money-Saver.html.',zip_n:'Potřebujete: telefon nebo počítač, který otevře ZIP (většina umí).',
       app_b:'Aplikace',app_s:'Přidejte si ji na plochu a otevírejte jako jakoukoli aplikaci.',app_n:'Potřebujete: Chrome, Edge nebo Safari a asi minutu.',
-      web_b:'Webová stránka',web_s:'Otevřete ji hned v prohlížeči. Nic se neinstaluje.',web_n:'Potřebujete: libovolný moderní prohlížeč a připojení k internetu.'
+      web_b:'Webová stránka',web_s:'Otevřete ji hned v prohlížeči. Nic se neinstaluje.',web_n:'Potřebujete: libovolný moderní prohlížeč a připojení k internetu.',
+      biz2_p:"Mzdy před zdaněním a po zdanění, s Potvrdit u každého nebo Potvrdit vše. Úvěry a faktury placené celé i po částech.",
+      biz4_h:"Sklad a objednávky",
+      biz4_p:"Produkty s množstvím, cenou a stavem platby. Zadejte, jak dlouho objednávka vydrží, a aplikace připomene další objednávku.",
+      plan_eyebrow:"Otevíráte firmu?",
+      plan_h:"Studie proveditelnosti za vás.",
+      plan_p:"Při registraci zvolte Nová firma. Zadejte, co musíte koupit, měsíční náklady a co čekáte, že prodáte, a aplikace spočítá zbytek.",
+      plan_c1:"Počáteční náklady s hotovým seznamem pro váš typ firmy",
+      plan_c2:"Potřebný rozpočet, bod zvratu, návratnost a výnos investice",
+      plan_c3:"Malá, dobrá a velká verze vaší firmy vedle sebe",
+      plan_c4:"Při otevření ji spustíte: tým, náklady i úvěr se přenesou",
+      new6:"Firemní účty jsou oddělené od osobních. Fungující firmy mají sklad a mzdy týmu, nové firmy studii proveditelnosti."
     },
     fr:{
       page_title:"Money Saver : Téléchargement",
@@ -877,7 +924,18 @@ footer a:hover{text-decoration:underline}
       new4:"Téléphone et ordinateur ne s'écrasent plus : les changements faits sur les deux sont gardés.",
       new5:"Chaque compte garde le type choisi à sa création. Pour l'autre type, créez un second compte.",
       lang_title:"Langues",
-      cur_title:"Devises"
+      cur_title:"Devises",
+      biz2_p:"Salaires avant et après impôt, avec Confirmer pour chaque personne ou Tout confirmer. Prêts et factures, payés en entier ou en partie.",
+      biz4_h:"Stock et recommandes",
+      biz4_p:"Produits avec quantité, prix et payé ou non. Indiquez combien de temps dure une commande, et l'app vous rappelle de recommander.",
+      plan_eyebrow:"Vous ouvrez une entreprise ?",
+      plan_h:"Une étude de faisabilité, faite pour vous.",
+      plan_p:"Choisissez Nouvelle entreprise à l'inscription. Indiquez ce qu'il faut acheter, vos coûts mensuels et ce que vous pensez vendre, et l'app calcule le reste.",
+      plan_c1:"Coûts de démarrage avec une liste prête pour votre type d'entreprise",
+      plan_c2:"Budget total nécessaire, seuil de rentabilité, délai de récupération et rendement",
+      plan_c3:"Une petite, une bonne et une grande version de votre entreprise, côte à côte",
+      plan_c4:"À l'ouverture, lancez-la : votre équipe, vos coûts et votre prêt sont repris",
+      new6:"Les comptes entreprise sont séparés des comptes personnels. Les entreprises en activité ont le stock et les salaires ; les nouvelles, une étude de faisabilité."
     }
   };
   var lang='en', theme='light';

@@ -2,6 +2,8 @@
 
 What this does: once a day, Supabase checks every business account and sends a phone notification
 when a payment is due within the chosen number of days, or is overdue. This works while the app is closed.
+It also reminds a business to order stock again when a product's order has run out (last delivery + how long one
+order lasts). Business plans (new businesses not open yet) get no reminders.
 
 Status: written and tested for the rules (`node test-logic.mjs`). Not deployed. Deploying needs
 steps only the owner of the Supabase project can take.

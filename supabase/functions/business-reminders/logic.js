@@ -39,24 +39,38 @@ export function eventsFor(b, ms) {
   return out;
 }
 
-// Unpaid payments due within the reminder window, or already overdue.
+// Products to order again: last delivery + how long one order lasts (same rule as bzReorderList in biz/biz_stock.js).
+export function reorderItems(b, today, soon) {
+  const out = [];
+  for (const p of b.products || []) {
+    const last = (p.buys || []).map(x => String(x.date || '')).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort().pop();
+    const days = Math.round(num(p.lastsDays));
+    if (!last || days <= 0) continue;
+    const next = addDays(last, days);
+    if (next <= soon) out.push({ kind: 'stock', title: p.name || 'Product', date: next, amount: 0, paid: false });
+  }
+  return out;
+}
+
+// Unpaid payments and stock to reorder, due within the reminder window or already late. Plans (new businesses) get none.
 export function dueItems(data, today) {
-  if (!data || data.accountType !== 'business' || !data.business) return [];
+  if (!data || data.accountType !== 'business' || !data.business || data.business.stage === 'planning') return [];
   const b = data.business;
   const remind = Math.min(14, Math.max(0, Math.round(Number(b.remindDays)) || 0));
   const soon = addDays(today, Number.isFinite(Number(b.remindDays)) ? remind : 2);
   const cm = today.slice(0, 7);
   let list = [];
   for (const m of [shiftMonth(cm, -1), cm, shiftMonth(cm, 1)]) list = list.concat(eventsFor(b, m));
-  return list.filter(e => !e.paid && e.date <= soon).map(e => ({ ...e, late: e.date < today }));
+  list = list.filter(e => !e.paid && e.date <= soon).concat(reorderItems(b, today, soon));
+  return list.map(e => ({ ...e, late: e.date < today }));
 }
 
 export function reminderText(items) {
-  const overdue = items.filter(i => i.late).length;
-  const total = items.reduce((s, i) => s + i.amount, 0);
-  return {
-    title: 'Payment reminder',
-    tag: 'money-saver-payments',
-    body: `${items.length} payment${items.length === 1 ? '' : 's'} to take care of${overdue ? ` (${overdue} overdue)` : ''} · total ${total.toFixed(2)}`
-  };
+  const pay = items.filter(i => i.kind !== 'stock'), stock = items.filter(i => i.kind === 'stock');
+  const overdue = pay.filter(i => i.late).length;
+  const total = pay.reduce((s, i) => s + i.amount, 0);
+  const parts = [];
+  if (pay.length) parts.push(`${pay.length} payment${pay.length === 1 ? '' : 's'} to take care of${overdue ? ` (${overdue} overdue)` : ''} · total ${total.toFixed(2)}`);
+  if (stock.length) parts.push(`Order again: ${stock.map(i => i.title).slice(0, 3).join(', ')}${stock.length > 3 ? '…' : ''}`);
+  return { title: pay.length ? 'Payment reminder' : 'Time to order again', tag: 'money-saver-payments', body: parts.join(' · ') };
 }
