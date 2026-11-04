@@ -669,7 +669,7 @@ async function loadAccount(user){const intent=ACC.intent;ACC.intent=null;ACC.use
    let local=null;try{local=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(e){}
    state=(local&&local.months&&!local.demo)?local:emptyState();normState();if(savedTheme())state.theme=savedTheme();
    if(await saveCloudNow()){try{localStorage.removeItem(STORAGE)}catch(e){}}}
- normState();applyTheme();await loadDeletion();render();if(intent==='login')celebrate();else if(intent==='signup')celebrate(null);}
+ normState();applyTheme();await loadDeletion();render();if(intent==='login'){celebrate();popFabs()}else if(intent==='signup')celebrate(null);}
 function scheduleCloudSave(){clearTimeout(ACC.timer);ACC.timer=setTimeout(saveCloudNow,700)}
 async function saveCloudNow(){if(!ACC.user)return false;const {error}=await supa().from('budgets').upsert({user_id:ACC.user.id,data:state,updated_at:new Date().toISOString()});if(error){toast('Could not save. Check your connection.');return false}return true}
 async function logOut(){clearTimeout(ACC.timer);try{await supa().auth.signOut()}catch(e){}clearAccountView();closeMenu();showAuth('login')}
