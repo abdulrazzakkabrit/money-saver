@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Money Saver</title>
+<meta name="description" content="Download Money Saver, a simple personal budget app. Works on phone and PC.">
+<meta name="theme-color" content="#2f8a5d">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--green:#2f8a5d;--green-dark:#246f4a;--ink:#1f2a24;--muted:#5d6b63;--line:#dfe8e2;--bg:#f7faf7;--card:#ffffff}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;width:100%;max-width:640px;margin:0 auto;padding:40px 18px 24px}
+.hero{text-align:center}
+.hero img{width:104px;height:104px;border-radius:28px;box-shadow:0 10px 26px #78ba8b33}
+h1{font-size:clamp(28px,6vw,38px);margin:18px 0 6px;letter-spacing:-.01em}
+.lead{color:var(--muted);font-size:17px;margin:0 auto;max-width:460px}
+.btn{display:inline-block;margin-top:22px;background:var(--green-dark);color:#fff;text-decoration:none;font-weight:700;font-size:18px;padding:16px 28px;border-radius:16px;box-shadow:0 8px 20px #246f4a40}
+.btn:hover{background:var(--green)}
+.btn-small{background:#fff;color:var(--green-dark);border:1px solid var(--line);box-shadow:none;font-size:15px;padding:12px 18px;margin-top:12px}
+.note{color:var(--muted);font-size:14px;margin-top:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:26px}
+.card h2{font-size:19px;margin:0 0 10px}
+.card ol{margin:0;padding-left:20px}
+.card li{margin:8px 0}
+.features{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.features li{padding-left:28px;position:relative}
+.features li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:24px 18px 32px}
+footer a{color:var(--green-dark)}
+@media (prefers-color-scheme:dark){
+ :root{--ink:#e8efe9;--muted:#9fb1a6;--line:#2b3a33;--bg:#111815;--card:#18221d}
+ body{background:#111815}
+ .btn-small{background:#18221d;color:#9fe0bb;border-color:#2b3a33}
+}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <img src="icon-192.png" alt="Money Saver logo">
+    <h1>Money Saver</h1>
+    <p class="lead">A simple, private budget app. Track income, bills, expenses, savings and debts, and see where your money goes each month.</p>
+    <a class="btn" href="index.html" download="Money-Saver.html">Download Money Saver</a>
+    <p class="note">Free. Works on phone and computer.</p>
+    <a class="btn btn-small" href="index.html">Open in browser</a>
+  </section>
+
+  <section class="card">
+    <h2>What you get</h2>
+    <ul class="features">
+      <li>Monthly overview with income, spending, savings and what is left</li>
+      <li>Goals, debt reminders and notifications</li>
+      <li>Your own account: sign in on phone and PC and see the same numbers</li>
+      <li>English, Arabic and Czech</li>
+      <li>Light and dark mode</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>How to install</h2>
+    <p><strong>On iPhone or iPad</strong></p>
+    <ol>
+      <li>Open this page in Safari.</li>
+      <li>Tap the Share button, then <em>Add to Home Screen</em>.</li>
+    </ol>
+    <p><strong>On Android (Chrome or Samsung Internet)</strong></p>
+    <ol>
+      <li>Open this page in the browser.</li>
+      <li>Tap the menu (⋮), then <em>Install app</em> or <em>Add to Home screen</em>.</li>
+    </ol>
+    <p><strong>On a computer (Chrome or Edge)</strong></p>
+    <ol>
+      <li>Open this page.</li>
+      <li>Click the install icon in the address bar, or the menu, then <em>Install Money Saver</em>.</li>
+    </ol>
+  </section>
+</main>
+<footer>
+  <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · Powered by Stelen95
+</footer>
+</body>
+</html>
