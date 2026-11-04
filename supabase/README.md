@@ -1,35 +1,26 @@
-# Background payment reminders (business accounts)
+# Phone reminders for business accounts (when the app is closed)
 
-What this does: once a day, Supabase checks every business account and sends a phone notification
-when a payment is due within the chosen number of days, or is overdue. This works while the app is closed.
-It also reminds a business to order stock again when a product's order has run out (last delivery + how long one
-order lasts). Business plans (new businesses not open yet) get no reminders.
+Once a day, Supabase checks every running business and sends a phone notification for payments due soon
+or overdue, and for stock that needs ordering again. Business plans (not open yet) get none.
+It uses the same notification key and phone list as the motivation messages.
 
-Status: written and tested for the rules (`node test-logic.mjs`). Not deployed. Deploying needs
-steps only the owner of the Supabase project can take.
+## Setup in the Supabase website (no programs needed)
 
-## Steps (owner)
-
-1. Do NOT create a new VAPID key pair. Phones already receive the motivation notifications with the app
-   closed, so a key pair is already in use: its public half is `VAPID_PUBLIC` in `index.html`, and its
-   private half is wherever the motivation notifications are sent from (usually a secret in Supabase:
-   Edge Functions -> Secrets). Use that same pair. A new pair would stop every phone that is already
-   signed up from receiving notifications until each user turns them on again.
-2. Run `business-reminders.sql` in the Supabase SQL editor. Replace `YOUR-PROJECT-REF` with your project
-   reference, and store the service role key in Vault (the commented line in the file shows how).
-3. Deploy the function from the Supabase CLI:
-   `supabase functions deploy business-reminders --no-verify-jwt`
-4. Set the secrets `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` to the same values the
-   motivation sender uses. If they are already set under these names in the same Supabase project, skip this.
-5. Test it: call the function once with the service role key as the bearer token. It should answer
-   with the number of accounts checked and notifications sent.
+1. **Secrets** – Edge Functions → Secrets. Your notification private key should already be there (the
+   motivation messages use it). Add one more secret: `CRON_SECRET` = the private value you were given.
+   Do not create a new notification key: that would stop phones that are already signed up.
+2. **Function** – Edge Functions → Deploy a new function → Via editor. Name it `business-reminders`,
+   replace the code with `functions/business-reminders/index.ts`, and deploy.
+   Then in the function's settings, turn **off** "Enforce JWT verification" (the daily job uses `CRON_SECRET` instead).
+3. **Daily job** – SQL Editor → New query. Paste `business-reminders.sql`, put your `CRON_SECRET` value in place of
+   `PASTE-YOUR-CRON_SECRET-HERE`, and press Run.
+4. **Test** – open the function → Test (or Invoke), add the header `x-cron-secret` with your value, and send.
+   The answer shows how many business accounts were checked and how many notifications were sent.
+   If it says "No VAPID private key found", it lists the secret names it can see.
 
 ## Known limits
 
-- Dates are in UTC. A reminder can arrive a few hours before or after the local day changes.
-- A reminder is sent every day until the payment is marked paid, not once.
-- Only phones and browsers that turned on notifications in the app receive reminders: the same ones that get
-  the motivation messages.
-- Payment reminders use their own tag (`money-saver-payments`), so they show beside the motivation message
-  instead of replacing it. This needs the updated `sw.js` from version 1.2.0.
-- Nothing has been sent to a real phone yet.
+- Runs at 06:00 UTC. A reminder can arrive a few hours before or after the local day changes.
+- A reminder repeats every day until the payment is marked paid or the stock delivery is recorded.
+- Only phones and browsers that turned on notifications in the app receive reminders.
+- `logic.js` and `test-logic.mjs` hold the same rules for testing (`node test-logic.mjs`).

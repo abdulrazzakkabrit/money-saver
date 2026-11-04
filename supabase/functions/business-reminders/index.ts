@@ -1,48 +1,125 @@
-// Supabase Edge Function: once a day, tell each business account about payments that are due soon or overdue.
-// The app's own notifications only run while the app is open; this one reaches the phone when it is closed.
-//
-// Secrets to set (Supabase dashboard, or `supabase secrets set NAME=value`):
-//   VAPID_PUBLIC_KEY   same public key as VAPID_PUBLIC in index.html
-//   VAPID_PRIVATE_KEY  the matching private key (not stored in this repository)
-//   VAPID_SUBJECT      a contact address for push services, written as mailto:you@example.com
-// SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
-// Deploy: supabase functions deploy business-reminders --no-verify-jwt
+// Money Saver: daily phone reminders for business accounts (payments due and stock to reorder).
+// ONE file: paste it into Supabase -> Edge Functions -> Deploy a new function -> Via editor.
+// It reuses the notification key your motivation messages already use (Edge Function secrets).
 import webpush from 'npm:web-push@3.6.7';
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { dueItems, reminderText } from './logic.js';
+
+// Which business payments need a reminder today. Same rules as the app's bzEvents and bzAlerts in biz/biz.js.
+// Dates are UTC here (the app uses the phone's time), so a reminder can be a few hours off around midnight.
+
+const pad = n => String(n).padStart(2, '0');
+const monthDays = ms => { const [y, m] = ms.split('-').map(Number); return new Date(Date.UTC(y, m, 0)).getUTCDate(); };
+const dueDate = (ms, day) => ms + '-' + pad(Math.min(monthDays(ms), Math.max(1, Math.round(Number(day)) || 1)));
+const shiftMonth = (ms, k) => { const [y, m] = ms.split('-').map(Number); const d = new Date(Date.UTC(y, m - 1 + k, 1)); return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1); };
+const addDays = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); const x = new Date(Date.UTC(y, m - 1, d + n)); return x.getUTCFullYear() + '-' + pad(x.getUTCMonth() + 1) + '-' + pad(x.getUTCDate()); };
+const num = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+const paidAmount = (o, date) => (o && o.paid && Object.prototype.hasOwnProperty.call(o.paid, date)) ? num(o.paid[date]) : 0;
+const isPaid = (o, date, due) => { if (!(o && o.paid && Object.prototype.hasOwnProperty.call(o.paid, date))) return false; return due === undefined || paidAmount(o, date) >= num(due) - 0.005; };
+
+function eventsFor(b, ms) {
+  const out = [];
+  for (const l of b.loans || []) {
+    if (!/^\d{4}-\d{2}$/.test(String(l.start || '')) || l.start > ms) continue;
+    const date = dueDate(ms, l.dueDay);
+    let before = 0; for (const [k, v] of Object.entries(l.paid || {})) if (k < date) before += num(v);
+    const left = num(l.amount) - before;
+    if (left <= 0) continue;
+    const amount = Math.min(num(l.monthly) || left, left);
+    out.push({ kind: 'loan', title: l.name || 'Loan', date, amount, paid: isPaid(l, date, amount) });
+  }
+  for (const s of b.staff || []) {
+    const since = s.since || ms; if (since > ms) continue;
+    const date = dueDate(ms, s.payDay); const amount = num(s.salary);
+    out.push({ kind: 'staff', title: s.name || 'Team member', date, amount, paid: isPaid(s, date, amount) });
+  }
+  for (const x of b.bills || []) {
+    const amount = num(x.amount);
+    if (x.recur === 'once') {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(String(x.date || '')) && x.date.indexOf(ms + '-') === 0) out.push({ kind: 'bill', title: x.name || 'Bill', date: x.date, amount, paid: isPaid(x, x.date, amount) });
+      continue;
+    }
+    const since = x.since || ms; if (since > ms) continue;
+    const date = dueDate(ms, x.dueDay);
+    out.push({ kind: 'bill', title: x.name || 'Bill', date, amount, paid: isPaid(x, date, amount) });
+  }
+  return out;
+}
+
+// Products to order again: last delivery + how long one order lasts (same rule as bzReorderList in biz/biz_stock.js).
+function reorderItems(b, today, soon) {
+  const out = [];
+  for (const p of b.products || []) {
+    const last = (p.buys || []).map(x => String(x.date || '')).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort().pop();
+    const days = Math.round(num(p.lastsDays));
+    if (!last || days <= 0) continue;
+    const next = addDays(last, days);
+    if (next <= soon) out.push({ kind: 'stock', title: p.name || 'Product', date: next, amount: 0, paid: false });
+  }
+  return out;
+}
+
+// Unpaid payments and stock to reorder, due within the reminder window or already late. Plans (new businesses) get none.
+function dueItems(data, today) {
+  if (!data || data.accountType !== 'business' || !data.business || data.business.stage === 'planning') return [];
+  const b = data.business;
+  const remind = Math.min(14, Math.max(0, Math.round(Number(b.remindDays)) || 0));
+  const soon = addDays(today, Number.isFinite(Number(b.remindDays)) ? remind : 2);
+  const cm = today.slice(0, 7);
+  let list = [];
+  for (const m of [shiftMonth(cm, -1), cm, shiftMonth(cm, 1)]) list = list.concat(eventsFor(b, m));
+  list = list.filter(e => !e.paid && e.date <= soon).concat(reorderItems(b, today, soon));
+  return list.map(e => ({ ...e, late: e.date < today }));
+}
+
+function reminderText(items) {
+  const pay = items.filter(i => i.kind !== 'stock'), stock = items.filter(i => i.kind === 'stock');
+  const overdue = pay.filter(i => i.late).length;
+  const total = pay.reduce((s, i) => s + i.amount, 0);
+  const parts = [];
+  if (pay.length) parts.push(`${pay.length} payment${pay.length === 1 ? '' : 's'} to take care of${overdue ? ` (${overdue} overdue)` : ''} · total ${total.toFixed(2)}`);
+  if (stock.length) parts.push(`Order again: ${stock.map(i => i.title).slice(0, 3).join(', ')}${stock.length > 3 ? '…' : ''}`);
+  return { title: pay.length ? 'Payment reminder' : 'Time to order again', tag: 'money-saver-payments', body: parts.join(' · ') };
+}
+
+// The app's public notification key (public, safe to keep here). Used if no public key secret is set.
+const APP_PUBLIC_KEY = 'BKqO2K0xMzrkKA6dlisCz7sjcxhlRMx8RQSwx9cjWwn-kZDLkB7vJKlOm82DMZe27JPlTTvM1BjXJdUvVInSmrg';
+const env = (...names) => { for (const n of names) { const v = Deno.env.get(n); if (v) return v; } return ''; };
 
 Deno.serve(async (req) => {
-  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-  if (!key || req.headers.get('Authorization') !== `Bearer ${key}`) {
-    return new Response('forbidden', { status: 403 });
+  const service = env('SUPABASE_SERVICE_ROLE_KEY');
+  const cron = env('CRON_SECRET');
+  const okCron = cron && req.headers.get('x-cron-secret') === cron;
+  const okService = service && req.headers.get('Authorization') === `Bearer ${service}`;
+  if (!okCron && !okService) return new Response('forbidden', { status: 403 });
+
+  const pub = env('VAPID_PUBLIC_KEY', 'VAPID_PUBLIC', 'PUBLIC_VAPID_KEY') || APP_PUBLIC_KEY;
+  const priv = env('VAPID_PRIVATE_KEY', 'VAPID_PRIVATE', 'PRIVATE_VAPID_KEY');
+  let subject = env('VAPID_SUBJECT', 'VAPID_EMAIL', 'VAPID_CONTACT') || 'mailto:support@example.com';
+  if (!/^(mailto:|https?:)/.test(subject)) subject = 'mailto:' + subject;
+  if (!priv) {
+    const names = Object.keys(Deno.env.toObject()).filter(n => /vapid|push/i.test(n));
+    return Response.json({ error: 'No VAPID private key found in the secrets', secretNamesSeen: names }, { status: 500 });
   }
-  const db = createClient(Deno.env.get('SUPABASE_URL')!, key);
-  webpush.setVapidDetails(
-    Deno.env.get('VAPID_SUBJECT')!,
-    Deno.env.get('VAPID_PUBLIC_KEY')!,
-    Deno.env.get('VAPID_PRIVATE_KEY')!
-  );
+  webpush.setVapidDetails(subject, pub, priv);
+
+  const db = createClient(env('SUPABASE_URL'), service);
   const today = new Date().toISOString().slice(0, 10);
   const { data: rows, error } = await db.from('budgets').select('user_id,data').eq('data->>accountType', 'business');
-  if (error) return new Response(error.message, { status: 500 });
-  let sent = 0, removed = 0;
+  if (error) return Response.json({ error: error.message }, { status: 500 });
+  let due = 0, sent = 0, removed = 0, failed = 0;
   for (const row of rows ?? []) {
     const items = dueItems(row.data, today);
     if (!items.length) continue;
+    due++;
     const payload = JSON.stringify(reminderText(items));
     const { data: subs } = await db.from('push_subscriptions').select('endpoint,subscription').eq('user_id', row.user_id);
     for (const s of subs ?? []) {
-      try {
-        await webpush.sendNotification(s.subscription, payload);
-        sent++;
-      } catch (e) {
-        // 404 or 410: the phone or browser has removed this subscription
-        if (e && (e.statusCode === 404 || e.statusCode === 410)) {
-          await db.from('push_subscriptions').delete().eq('endpoint', s.endpoint);
-          removed++;
-        }
+      try { await webpush.sendNotification(s.subscription, payload); sent++; }
+      catch (e) {
+        if (e && (e.statusCode === 404 || e.statusCode === 410)) { await db.from('push_subscriptions').delete().eq('endpoint', s.endpoint); removed++; }
+        else failed++;
       }
     }
   }
-  return Response.json({ checked: rows?.length ?? 0, sent, removed });
+  return Response.json({ ok: true, businessAccounts: rows?.length ?? 0, withSomethingDue: due, notificationsSent: sent, oldPhonesRemoved: removed, failed });
 });
