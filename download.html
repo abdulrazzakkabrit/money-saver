@@ -25,7 +25,7 @@ a{color:inherit}
 
 /* background: sky, glow and sea band, like the screenshot */
 .sun{position:fixed;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(255,246,228,.95),rgba(255,246,228,0) 65%);right:-160px;top:-120px;pointer-events:none;z-index:0;animation:breathe 9s ease-in-out infinite alternate}
-.sea{position:fixed;left:-10%;right:-10%;bottom:-180px;height:460px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(120,150,160,.45),rgba(120,150,160,0) 70%);pointer-events:none;z-index:0}
+.sea{position:fixed;left:-10%;right:-10%;bottom:-180px;height:460px;background:radial-gradient(ellipse at center,rgba(120,150,160,.45),rgba(120,150,160,0) 70%);pointer-events:none;z-index:0}
 .cloud{position:fixed;width:520px;height:160px;border-radius:999px;background:rgba(255,255,255,.35);filter:blur(30px);pointer-events:none;z-index:0;animation:slide 40s ease-in-out infinite alternate}
 .c1{left:-120px;top:18%}
 .c2{right:-160px;top:58%;animation-duration:52s;animation-delay:-14s}
@@ -184,6 +184,27 @@ footer a:hover{text-decoration:underline}
 .goals [data-reveal]:nth-child(2){transition-delay:.12s}
 .goals [data-reveal]:nth-child(3){transition-delay:.24s}
 
+/* download chooser: blurred background, panel rises from below */
+.chooser{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(196,206,214,0);backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0);transition:background .45s ease,backdrop-filter .45s ease,-webkit-backdrop-filter .45s ease}
+.chooser[hidden]{display:none}
+.chooser.is-open{background:rgba(196,206,214,.55);backdrop-filter:blur(16px) saturate(1.05);-webkit-backdrop-filter:blur(16px) saturate(1.05)}
+.chooser-panel{width:min(470px,100%);background:var(--glass-2);border:1px solid var(--edge);border-radius:34px;padding:24px 22px 22px;box-shadow:0 40px 90px rgba(40,50,60,.25);transform:translateY(120vh) scale(.92);opacity:0;transition:transform .75s cubic-bezier(.2,.9,.25,1.1),opacity .4s ease}
+.chooser.is-open .chooser-panel{transform:none;opacity:1}
+.chooser-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
+.chooser-head h3{font-size:26px;letter-spacing:-.03em;margin:6px 0 0;font-weight:800}
+.x{width:38px;height:38px;border-radius:50%;border:1px solid var(--edge);background:#fff;font-size:15px;cursor:pointer;color:var(--ink);flex:none}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:rgba(255,255,255,.72);border:1px solid var(--edge);border-radius:24px;padding:16px;margin-top:12px;color:var(--ink);text-decoration:none;font:inherit;cursor:pointer;transform:translateY(50px) scale(.9);opacity:0;transition:transform .6s cubic-bezier(.2,.9,.25,1.2),opacity .4s ease,background .2s ease}
+.chooser.is-open .opt{transform:none;opacity:1}
+.chooser.is-open .opt:nth-of-type(1){transition-delay:.12s}
+.chooser.is-open .opt:nth-of-type(2){transition-delay:.2s}
+.chooser.is-open .opt:nth-of-type(3){transition-delay:.28s}
+.opt:hover{background:#fff}
+.opt-ico{width:54px;height:54px;border-radius:18px;background:#fff;box-shadow:0 6px 16px rgba(40,50,60,.1);display:grid;place-items:center;font-size:24px;flex:none}
+.opt-txt{flex:1;display:grid;gap:3px;min-width:0}
+.opt-txt b{font-size:17px;letter-spacing:-.01em}
+.opt-txt small{color:var(--muted);font-size:14px}
+.opt-txt em{font-style:normal;font-size:12.5px;color:var(--green);font-weight:650;margin-top:2px}
+.opt .arrow{background:var(--ink);color:#fff;flex:none}
 @media (max-width:980px){
   .hero{grid-template-columns:1fr;gap:28px;padding-top:34px}
   .split{grid-template-columns:1fr}
@@ -226,7 +247,7 @@ footer a:hover{text-decoration:underline}
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
     </div>
-    <a class="dark-pill" href="index.html" download="Money-Saver.html">Download <span class="arrow">↗</span></a>
+    <a class="dark-pill" href="Money-Saver.zip" download="Money-Saver.zip" data-choose>Download <span class="arrow">↗</span></a>
   </div>
 </nav>
 
@@ -270,7 +291,7 @@ footer a:hover{text-decoration:underline}
       </div>
       <div class="price-row">
         <div class="price">Free<small>to download</small></div>
-        <a class="dl-btn" href="index.html" download="Money-Saver.html">Download <span class="arrow">↓</span></a>
+        <a class="dl-btn" href="Money-Saver.zip" download="Money-Saver.zip" data-choose>Download <span class="arrow">↓</span></a>
       </div>
       <a class="open" href="index.html">Open in browser</a>
       <ul class="dl-list">
@@ -463,11 +484,37 @@ footer a:hover{text-decoration:underline}
     <div class="cta-box" data-reveal>
       <h2>Start with your first month.</h2>
       <p>Free to download. Add your income and bills, and see where the rest goes.</p>
-      <a class="dl-btn" href="index.html" download="Money-Saver.html">Download Money Saver <span class="arrow">↓</span></a>
+      <a class="dl-btn" href="Money-Saver.zip" download="Money-Saver.zip" data-choose>Download Money Saver <span class="arrow">↓</span></a>
     </div>
   </div>
 </main>
 
+<div class="chooser" id="chooser" role="dialog" aria-modal="true" aria-labelledby="chooser-title" hidden>
+  <div class="chooser-panel">
+    <div class="chooser-head">
+      <div>
+        <div class="eyebrow">Download Money Saver</div>
+        <h3 id="chooser-title">How do you want it?</h3>
+      </div>
+      <button class="x" type="button" data-close aria-label="Close">✕</button>
+    </div>
+    <a class="opt" href="Money-Saver.zip" download="Money-Saver.zip" data-after>
+      <span class="opt-ico">🗜️</span>
+      <span class="opt-txt"><b>Zip file</b><small>One file to save. Unzip it and open Money-Saver.html.</small><em>You need: a phone or computer that can open zip files (most can).</em></span>
+      <span class="arrow">↓</span>
+    </a>
+    <button class="opt" type="button" data-install>
+      <span class="opt-ico">📲</span>
+      <span class="opt-txt"><b>App</b><small>Add it to your home screen and open it like any app.</small><em>You need: Chrome, Edge or Safari, and about one minute.</em></span>
+      <span class="arrow">↗</span>
+    </button>
+    <a class="opt" href="index.html" target="_blank" rel="noopener" data-after>
+      <span class="opt-ico">🌐</span>
+      <span class="opt-txt"><b>Web page</b><small>Open it in your browser now. Nothing to install.</small><em>You need: any modern browser and an internet connection.</em></span>
+      <span class="arrow">↗</span>
+    </a>
+  </div>
+</div>
 <footer>
   <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · Powered by Stelen95
 </footer>
@@ -498,6 +545,38 @@ footer a:hover{text-decoration:underline}
     else if(n.tagName==='B'){out.appendChild(wrap(n.textContent,true))}
   });
   t.textContent='';t.appendChild(out);
+
+  /* download chooser */
+  var chooser=document.getElementById('chooser');var deferredInstall=null;
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstall=e});
+  function openChooser(){
+    chooser.hidden=false;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){chooser.classList.add('is-open')})});
+    document.body.style.overflow='hidden';
+    var first=chooser.querySelector('.opt');if(first)first.focus({preventScroll:true});
+  }
+  function closeChooser(){
+    chooser.classList.remove('is-open');
+    setTimeout(function(){chooser.hidden=true;document.body.style.overflow=''},450);
+  }
+  document.querySelectorAll('[data-choose]').forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();openChooser()});
+  });
+  chooser.addEventListener('click',function(e){
+    if(e.target===chooser||e.target.closest('[data-close]'))closeChooser();
+  });
+  chooser.querySelectorAll('[data-after]').forEach(function(a){
+    a.addEventListener('click',function(){setTimeout(closeChooser,150)});
+  });
+  chooser.querySelector('[data-install]').addEventListener('click',function(){
+    if(deferredInstall){
+      deferredInstall.prompt();deferredInstall=null;closeChooser();
+    }else{
+      closeChooser();
+      setTimeout(function(){document.getElementById('install').scrollIntoView({behavior:'smooth'})},450);
+    }
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!chooser.hidden)closeChooser()});
 
   /* reveal on scroll */
   var els=document.querySelectorAll('[data-reveal]');
