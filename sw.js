@@ -1,6 +1,6 @@
 // Money Saver service worker: makes the app installable and lets the
 // app shell open when the connection is weak. Network first, so updates show.
-const CACHE = 'money-saver-shell-v1';
+const CACHE = 'money-saver-shell-v2';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
@@ -33,12 +33,13 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Server reminders: show the motivation even when the app is closed.
+// Server notifications (motivation and business payment reminders) show even when the app is closed.
+// Each kind has its own tag, so a payment reminder does not replace the motivation message.
 self.addEventListener('push', event => {
   let data = { title: 'Money Saver', body: 'Small savings, big goals.' };
   try { data = event.data.json(); } catch (e) {}
   event.waitUntil(self.registration.showNotification(data.title || 'Money Saver', {
-    body: data.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'money-saver-motivation'
+    body: data.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: data.tag || 'money-saver-motivation'
   }));
 });
 self.addEventListener('notificationclick', event => {

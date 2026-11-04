@@ -4,7 +4,8 @@
 -- Needs: the business-reminders function deployed, and the VAPID secrets set.
 -- ==========================================================
 
--- 1) Where the app keeps each phone's or browser's push subscription (the app already writes here)
+-- 1) The phone list. Your project already has this table (the motivation notifications use it),
+--    so these lines change nothing there. They only matter on a brand-new project.
 create table if not exists public.push_subscriptions (
   endpoint     text primary key,
   user_id      uuid not null references auth.users(id) on delete cascade,
@@ -12,6 +13,7 @@ create table if not exists public.push_subscriptions (
   created_at   timestamptz not null default now()
 );
 alter table public.push_subscriptions enable row level security;
+drop policy if exists "push: manage own" on public.push_subscriptions;
 create policy "push: manage own" on public.push_subscriptions for all
   using (auth.uid() = user_id) with check (auth.uid() = user_id);
 

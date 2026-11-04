@@ -56,6 +56,7 @@ export function reminderText(items) {
   const total = items.reduce((s, i) => s + i.amount, 0);
   return {
     title: 'Payment reminder',
+    tag: 'money-saver-payments',
     body: `${items.length} payment${items.length === 1 ? '' : 's'} to take care of${overdue ? ` (${overdue} overdue)` : ''} · total ${total.toFixed(2)}`
   };
 }

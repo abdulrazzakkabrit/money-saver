@@ -8,13 +8,17 @@ steps only the owner of the Supabase project can take.
 
 ## Steps (owner)
 
-1. Create the VAPID key pair once, if you do not already have one. The public key must match
-   `VAPID_PUBLIC` in `index.html`. The private key stays secret and is not stored in this repository.
+1. Do NOT create a new VAPID key pair. Phones already receive the motivation notifications with the app
+   closed, so a key pair is already in use: its public half is `VAPID_PUBLIC` in `index.html`, and its
+   private half is wherever the motivation notifications are sent from (usually a secret in Supabase:
+   Edge Functions -> Secrets). Use that same pair. A new pair would stop every phone that is already
+   signed up from receiving notifications until each user turns them on again.
 2. Run `business-reminders.sql` in the Supabase SQL editor. Replace `YOUR-PROJECT-REF` with your project
    reference, and store the service role key in Vault (the commented line in the file shows how).
 3. Deploy the function from the Supabase CLI:
    `supabase functions deploy business-reminders --no-verify-jwt`
-4. Set the secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (for example `mailto:support@your-domain`).
+4. Set the secrets `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` to the same values the
+   motivation sender uses. If they are already set under these names in the same Supabase project, skip this.
 5. Test it: call the function once with the service role key as the bearer token. It should answer
    with the number of accounts checked and notifications sent.
 
@@ -22,5 +26,8 @@ steps only the owner of the Supabase project can take.
 
 - Dates are in UTC. A reminder can arrive a few hours before or after the local day changes.
 - A reminder is sent every day until the payment is marked paid, not once.
-- Only subscriptions saved from the app's notification settings receive reminders.
+- Only phones and browsers that turned on notifications in the app receive reminders: the same ones that get
+  the motivation messages.
+- Payment reminders use their own tag (`money-saver-payments`), so they show beside the motivation message
+  instead of replacing it. This needs the updated `sw.js` from version 1.2.0.
 - Nothing has been sent to a real phone yet.
